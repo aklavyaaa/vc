@@ -3,51 +3,59 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        body { font-family: sans-serif; background: #121212; color: white; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-        #video-container { flex-grow: 1; display: grid; grid-template-rows: 1fr 1fr; gap: 5px; background: #000; }
-        video { width: 100%; height: 100%; object-fit: cover; background: #333; }
-        .controls { padding: 20px; text-align: center; background: #2c3e50; }
-        button { padding: 15px 30px; font-size: 16px; border-radius: 50px; border: none; cursor: pointer; }
-        .call-btn { background: #27ae60; color: white; }
+        body { margin: 0; background: #000; color: white; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; }
+        #video-grid { flex-grow: 1; display: grid; grid-template-rows: 1fr 1fr; }
+        video { width: 100%; height: 100%; object-fit: cover; border: 1px solid #333; }
+        .ui { padding: 20px; text-align: center; background: #1a1a1a; }
+        button { padding: 15px 25px; margin: 10px; border-radius: 10px; border: none; font-size: 18px; cursor: pointer; }
+        .aku-btn { background: #3498db; color: white; }
+        .billu-btn { background: #e67e22; color: white; }
     </style>
 </head>
 <body>
 
-<div id="video-container">
+<div id="video-grid">
     <video id="localVideo" autoplay muted playsinline></video>
     <video id="remoteVideo" autoplay playsinline></video>
 </div>
 
-<div class="controls" id="controls">
-    <input id="userId" placeholder="Enter your name (aku/billu)">
-    <button onclick="init()">Login</button>
-    <button id="call-btn" class="call-btn" style="display:none;" onclick="startCall()">Video Call</button>
+<div class="ui" id="ui">
+    <button class="aku-btn" onclick="startApp('aku')">I am AKU</button>
+    <button class="billu-btn" onclick="startApp('billu')">I am BILLU</button>
+    <p id="status">Select your identity to start</p>
 </div>
 
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
     let peer, localStream;
-    const targetPeer = (user) => user === 'aku' ? 'billu' : 'aku';
 
-    async function init() {
-        const username = document.getElementById('userId').value;
-        peer = new Peer(username);
+    async function startApp(username) {
+        document.getElementById('status').innerText = "Connecting...";
         
-        // Get Video + Audio
+        // 1. Get Camera/Mic
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         document.getElementById('localVideo').srcObject = localStream;
 
+        // 2. Initialize Peer
+        peer = new Peer(username);
+
+        peer.on('open', (id) => {
+            document.getElementById('status').innerText = "Logged in as " + id.toUpperCase();
+            
+            // If Aku, auto-call Billu
+            if (id === 'aku') {
+                document.getElementById('status').innerText = "Calling Billu...";
+                const call = peer.call('billu', localStream);
+                call.on('stream', stream => document.getElementById('remoteVideo').srcObject = stream);
+            }
+        });
+
+        // 3. If Billu, listen for Aku
         peer.on('call', (call) => {
             call.answer(localStream);
-            call.on('stream', (stream) => { document.getElementById('remoteVideo').srcObject = stream; });
+            call.on('stream', stream => document.getElementById('remoteVideo').srcObject = stream);
+            document.getElementById('status').innerText = "In Call with Aku";
         });
-        
-        document.getElementById('call-btn').style.display = 'inline-block';
-    }
-
-    function startCall() {
-        const call = peer.call(targetPeer(document.getElementById('userId').value), localStream);
-        call.on('stream', (stream) => { document.getElementById('remoteVideo').srcObject = stream; });
     }
 </script>
 </body>
