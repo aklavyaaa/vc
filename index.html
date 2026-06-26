@@ -1,111 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>EJAA Pro-Call System</title>
-    <script src="https://meet.jit.si/external_api.js"></script>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
-        .app { width: 100%; max-width: 400px; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .status { display: flex; gap: 15px; margin: 15px 0; font-weight: bold; }
-        .dot { width: 12px; height: 12px; border-radius: 50%; background: #ccc; display: inline-block; }
-        .dot.on { background: #22c55e; box-shadow: 0 0 8px #22c55e; }
-        #chat { height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin: 10px 0; border-radius: 10px; background: #f9f9f9; }
-        #video-container { height: 400px; margin-top: 10px; display: none; }
-        #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); color: white; flex-direction: column; align-items: center; justify-content: center; z-index: 999; }
-    </style>
+  <title>EJAA P2P Call</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #1a1a1a; color: white; }
+    video { width: 300px; background: black; border-radius: 10px; }
+  </style>
 </head>
 <body>
+  <div id="setup">
+    <input id="pin" type="password" placeholder="PIN (2006/2008)">
+    <button onclick="init()">Login</button>
+  </div>
 
-<div class="app">
-    <h3>EJAA Control Panel</h3>
-    <div class="status">
-        <div><span id="dot-Aku" class="dot"></span> Aku</div>
-        <div><span id="dot-Billu" class="dot"></span> Billu</div>
-    </div>
-    
-    <input type="password" id="pin" placeholder="Enter PIN (2006/2008)" style="width:100%; padding:10px; box-sizing:border-box;">
-    <button onclick="login()" style="width:100%; margin-top:10px; padding:10px; background:#2c3e50; color:white; border:none; border-radius:5px; cursor:pointer;">Login</button>
+  <div id="app" style="display:none;">
+    <video id="localVideo" autoplay playsinline muted></video>
+    <video id="remoteVideo" autoplay playsinline></video>
+    <button onclick="startCall()">Start Call</button>
+  </div>
 
-    <div id="mainUI" style="display:none;">
-        <div id="chat"></div>
-        <button id="callBtn" onclick="initiateCall()" style="width:100%; padding:12px; background:#27ae60; color:white; border:none; border-radius:5px;">📞 Start Video Call</button>
-        <div id="video-container"></div>
-    </div>
-</div>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
-<div id="overlay">
-    <p><span id="callerName"></span> is calling!</p>
-    <button onclick="answerCall()" style="padding:15px; background:green; color:white; border:none;">Accept Call</button>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
-
-<script>
-    const firebaseConfig = { /* USE YOUR EXISTING CONFIG */ };
+  <script>
+    const firebaseConfig = { /* YOUR CONFIG */ };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    let currentUser, otherUser, api;
+    
+    let localStream, pc;
+    const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
-    function login() {
-        const pin = document.getElementById('pin').value;
-        if (pin === "2006") { currentUser = "Aku"; otherUser = "Billu"; }
-        else if (pin === "2008") { currentUser = "Billu"; otherUser = "Aku"; }
-        else return alert("Invalid PIN");
-
-        document.getElementById('mainUI').style.display = 'block';
-        db.ref("akchat/online/" + currentUser).set(true);
-        db.ref("akchat/online/" + currentUser).onDisconnect().remove();
-
-        listenForMessages();
-        listenForCalls();
+    async function init() {
+      // 1. Get Camera
+      localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      document.getElementById('localVideo').srcObject = localStream;
+      
+      // 2. Setup WebRTC
+      pc = new RTCPeerConnection(config);
+      localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+      pc.ontrack = e => document.getElementById('remoteVideo').srcObject = e.streams[0];
+      
+      // 3. Handle ICE Candidates (Signaling)
+      pc.onicecandidate = e => { if(e.candidate) db.ref('calls/candidates').push(e.candidate); };
+      
+      document.getElementById('app').style.display = 'block';
     }
 
-    function initiateCall() {
-        db.ref("akchat/messages").push({ sender: currentUser, text: "📞 Calling...", isCall: true, ts: Date.now() });
-        db.ref("akchat/calls/signal").set({ from: currentUser, status: "ringing" });
+    async function startCall() {
+      // Create Offer and save to Firebase
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      db.ref('calls/offer').set(offer);
     }
 
-    function listenForCalls() {
-        db.ref("akchat/calls/signal").on("value", snap => {
-            const call = snap.val();
-            if (call && call.status === "ringing" && call.from !== currentUser) {
-                document.getElementById('callerName').innerText = call.from;
-                document.getElementById('overlay').style.display = "flex";
-            }
-        });
-    }
-
-    function answerCall() {
-        document.getElementById('overlay').style.display = "none";
-        document.getElementById('video-container').style.display = "block";
-        db.ref("akchat/messages").push({ sender: currentUser, text: "Call Accepted ✅", isCall: true, ts: Date.now() });
-        
-        const domain = "meet.jit.si";
-        const options = {
-            roomName: "EJAA_Private_Call_Room_123", // Unique ID for the call
-            parentNode: document.getElementById('video-container')
-        };
-        api = new JitsiMeetExternalAPI(domain, options);
-    }
-
-    function listenForMessages() {
-        db.ref("akchat/messages").on("child_added", snap => {
-            const d = snap.val();
-            const div = document.createElement("div");
-            div.className = "msg" + (d.isCall ? " call-msg" : "");
-            div.innerText = d.sender + ": " + d.text;
-            document.getElementById('chat').appendChild(div);
-            document.getElementById('chat').scrollTop = 9999;
-        });
-    }
-
-    ["Aku", "Billu"].forEach(n => {
-        db.ref("akchat/online/" + n).on("value", s => {
-            document.getElementById("dot-" + n).className = "dot" + (s.val() ? " on" : "");
-        });
+    // Listen for incoming offer
+    db.ref('calls/offer').on('value', async snap => {
+      if (!pc.remoteDescription && snap.val()) {
+        await pc.setRemoteDescription(snap.val());
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        db.ref('calls/answer').set(answer);
+      }
     });
-</script>
+
+    // Listen for Answer
+    db.ref('calls/answer').on('value', async snap => {
+      if (snap.val()) await pc.setRemoteDescription(snap.val());
+    });
+  </script>
 </body>
 </html>
