@@ -710,7 +710,7 @@ function doLogin(){
   const c=USER_COLORS[me];
   chatUserPill.textContent=me;chatUserPill.style.background=c.bg;chatUserPill.style.borderColor=c.border;chatUserPill.style.color=c.text;
   chatAv.textContent=me[0];chatAv.style.background=c.av;chatHeaderName.textContent="AKChat";
-  openChat();if(!listening){listening=true;startListening();}setOnline(true);
+  openChat();if(!listening){listening=true;startListening();vcInitPeer();}setOnline(true);
 }
 loginBtn.addEventListener("click",doLogin);
 codeInput.addEventListener("keydown",e=>{if(e.key==="Enter")doLogin();});
@@ -979,7 +979,7 @@ function renderMsg(key,d){
   /* TOUCH long-press + swipe-to-reply */
   let lpTimer=null,lpFired=false,startX=0,startY=0,dragStartX=0,dragging=false;
   bbl.addEventListener("touchstart",e=>{lpFired=false;dragging=false;startX=e.touches[0].clientX;startY=e.touches[0].clientY;dragStartX=startX;lpTimer=setTimeout(()=>{lpFired=true;navigator.vibrate&&navigator.vibrate(40);showCtx(key,d,startX,startY);},480);},{passive:true});
-  bbl.addEventListener("touchmove",e=>{const dx=e.touches[0].clientX-dragStartX,dy=Math.abs(e.touches[0].clientY-startY);if(Math.abs(dx)>8||dy>10)clearTimeout(lpTimer);const swipeDx=isOut?(dragStartX-e.touches[0].clientX):(e.touches[0].clientX-dragStartX);if(swipeDx>5&&dy<30&&!lpFired){dragging=true;const clamp=Math.min(swipeDx,64);row.style.transform=isOut?`translateX(-${clamp}px)`:`translateX(${clamp}px)`;},},{passive:true});
+  bbl.addEventListener("touchmove",e=>{const dx=e.touches[0].clientX-dragStartX,dy=Math.abs(e.touches[0].clientY-startY);if(Math.abs(dx)>8||dy>10)clearTimeout(lpTimer);const swipeDx=isOut?(dragStartX-e.touches[0].clientX):(e.touches[0].clientX-dragStartX);if(swipeDx>5&&dy<30&&!lpFired){dragging=true;const clamp=Math.min(swipeDx,64);row.style.transform=isOut?`translateX(-${clamp}px)`:`translateX(${clamp}px)`;}},{passive:true});
   bbl.addEventListener("touchend",e=>{clearTimeout(lpTimer);if(lpFired){e.preventDefault();return;}const dx=isOut?(dragStartX-e.changedTouches[0].clientX):(e.changedTouches[0].clientX-dragStartX);row.style.transform="";if(dragging&&dx>52){navigator.vibrate&&navigator.vibrate([10,30,10]);startReply(key,d);}dragging=false;});
   bbl.addEventListener("contextmenu",e=>{e.preventDefault();e.stopPropagation();showCtx(key,d,e.clientX,e.clientY);});
   bbl.addEventListener("mouseenter",()=>{rBtn.style.opacity="1";repBtn.style.opacity="1";});
@@ -1165,14 +1165,6 @@ vcCamBtn.addEventListener("click",()=>{
   vcLocalVideo.style.opacity=vcCamOff?"0.3":"1";
 });
 
-// Hook into login to init peer
-const _origDoLogin=doLogin;
-// We override startListening to also init peer
-const _origStartListening=startListening;
-function startListening(){
-  _origStartListening();
-  vcInitPeer();
-}
 
 </script>
 </body>
