@@ -1,72 +1,71 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>EJAA P2P Call</title>
-  <style>
-    body { font-family: sans-serif; padding: 20px; background: #1a1a1a; color: white; }
-    video { width: 300px; background: black; border-radius: 10px; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Web Call App</title>
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 50px; background: #f0f2f5; }
+        .card { background: white; padding: 20px; border-radius: 10px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        button { padding: 10px 20px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 5px; }
+        #status { margin-top: 20px; font-weight: bold; }
+    </style>
 </head>
 <body>
-  <div id="setup">
-    <input id="pin" type="password" placeholder="PIN (2006/2008)">
-    <button onclick="init()">Login</button>
-  </div>
 
-  <div id="app" style="display:none;">
-    <video id="localVideo" autoplay playsinline muted></video>
-    <video id="remoteVideo" autoplay playsinline></video>
-    <button onclick="startCall()">Start Call</button>
-  </div>
+<div class="card">
+    <h2 id="user-display">Login to continue</h2>
+    <div id="login-section">
+        <button onclick="login('aku')">Login as Aku</button>
+        <button onclick="login('billu')">Login as Billu</button>
+    </div>
+    <div id="call-section" style="display:none;">
+        <p id="status">Ready</p>
+        <button id="call-btn" onclick="startCall()" style="display:none;">Call Billu</button>
+        <audio id="remoteAudio" autoplay></audio>
+    </div>
+</div>
 
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+<script>
+    let peer;
+    let currentUser;
+    const peerConfig = { host: '0.peerjs.com', port: 443, secure: true };
 
-  <script>
-    const firebaseConfig = { /* YOUR CONFIG */ };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    
-    let localStream, pc;
-    const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+    function login(username) {
+        currentUser = username;
+        document.getElementById('user-display').innerText = `Logged in as: ${username.toUpperCase()}`;
+        document.getElementById('login-section').style.display = 'none';
+        document.getElementById('call-section').style.display = 'block';
 
-    async function init() {
-      // 1. Get Camera
-      localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      document.getElementById('localVideo').srcObject = localStream;
-      
-      // 2. Setup WebRTC
-      pc = new RTCPeerConnection(config);
-      localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-      pc.ontrack = e => document.getElementById('remoteVideo').srcObject = e.streams[0];
-      
-      // 3. Handle ICE Candidates (Signaling)
-      pc.onicecandidate = e => { if(e.candidate) db.ref('calls/candidates').push(e.candidate); };
-      
-      document.getElementById('app').style.display = 'block';
+        peer = new Peer(username, peerConfig);
+
+        peer.on('open', (id) => {
+            document.getElementById('status').innerText = "Connected! Waiting for call...";
+            if (username === 'aku') document.getElementById('call-btn').style.display = 'inline-block';
+        });
+
+        // Listen for incoming calls
+        peer.on('call', (call) => {
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                call.answer(stream);
+                call.on('stream', remoteStream => {
+                    const audio = document.getElementById('remoteAudio');
+                    audio.srcObject = remoteStream;
+                    document.getElementById('status').innerText = "Call Connected!";
+                });
+            });
+        });
     }
 
     async function startCall() {
-      // Create Offer and save to Firebase
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-      db.ref('calls/offer').set(offer);
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const call = peer.call('billu', stream);
+        call.on('stream', remoteStream => {
+            const audio = document.getElementById('remoteAudio');
+            audio.srcObject = remoteStream;
+            document.getElementById('status').innerText = "Calling Billu...";
+        });
     }
-
-    // Listen for incoming offer
-    db.ref('calls/offer').on('value', async snap => {
-      if (!pc.remoteDescription && snap.val()) {
-        await pc.setRemoteDescription(snap.val());
-        const answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
-        db.ref('calls/answer').set(answer);
-      }
-    });
-
-    // Listen for Answer
-    db.ref('calls/answer').on('value', async snap => {
-      if (snap.val()) await pc.setRemoteDescription(snap.val());
-    });
-  </script>
+</script>
 </body>
 </html>
