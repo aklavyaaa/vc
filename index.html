@@ -308,8 +308,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sa
 .vid-viewer-dl{position:absolute;top:14px;left:14px;background:rgba(255,255,255,.15);color:#fff;font-size:18px;width:42px;height:42px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;z-index:1;transition:background .15s;}
 .vid-viewer-dl:hover{background:rgba(255,255,255,.3);}
 
-/* vcall button pulse when in call */
-.vcall-btn.in-call{animation:vcPulse 1.4s infinite;background:rgba(34,197,94,.25);}
+/* vcall/acall button pulse when in call */
+.vcall-btn.in-call,.acall-btn.in-call{animation:vcPulse 1.4s infinite;background:rgba(34,197,94,.25);}
+.acall-btn.in-call{background:rgba(34,197,94,.25);}
 @keyframes vcPulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.6);}70%{box-shadow:0 0 0 10px rgba(34,197,94,0);}}
 
 /* ══ VIDEO CALL OVERLAY ══ */
@@ -404,6 +405,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sa
 }
 .vc-no-remote .nr-av{width:80px;height:80px;border-radius:50%;font-size:28px;font-weight:900;color:#fff;display:flex;align-items:center;justify-content:center;}
 .vc-no-remote span{color:rgba(255,255,255,.5);font-size:14px;}
+
+/* ══ AUDIO CALL OVERLAY ══ */
+#acallOverlay{
+  display:none;position:fixed;inset:0;z-index:10001;
+  background:linear-gradient(160deg,#0a1a0a 0%,#0d1a2e 50%,#1a0a2e 100%);
+  flex-direction:column;align-items:center;justify-content:center;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+#acallOverlay.show{display:flex;}
+#acallIncoming,#acallActive,#acallCalling{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;width:100%;height:100%;gap:10px;padding:40px 20px;
+}
+/* Audio wave animation for active voice call */
+.ac-wave{display:flex;align-items:center;gap:5px;height:50px;margin:16px 0;}
+.ac-bar{width:5px;border-radius:3px;background:linear-gradient(to top,#22c55e,#4ade80);animation:acWave 1s ease-in-out infinite;}
+.ac-bar:nth-child(1){animation-delay:0s;height:20px;}
+.ac-bar:nth-child(2){animation-delay:.1s;height:35px;}
+.ac-bar:nth-child(3){animation-delay:.2s;height:50px;}
+.ac-bar:nth-child(4){animation-delay:.3s;height:30px;}
+.ac-bar:nth-child(5){animation-delay:.4s;height:45px;}
+.ac-bar:nth-child(6){animation-delay:.3s;height:30px;}
+.ac-bar:nth-child(7){animation-delay:.2s;height:50px;}
+.ac-bar:nth-child(8){animation-delay:.1s;height:35px;}
+.ac-bar:nth-child(9){animation-delay:0s;height:20px;}
+@keyframes acWave{0%,100%{transform:scaleY(.4);opacity:.5;}50%{transform:scaleY(1);opacity:1;}}
+.ac-wave.idle .ac-bar{animation:none;transform:scaleY(.3);opacity:.4;}
 
 @media(max-width:600px){.browser-bar,.right-panel{display:none;}.sidebar{display:none;}.shopify-search{max-width:130px;}.order-actions .btn:nth-child(n+3){display:none;}.content{padding:10px;}}
 @media(max-width:900px){.sidebar{width:44px;}.sidebar-item>span:not(.sidebar-badge){display:none;}.sidebar-sub{display:none;}}
@@ -511,6 +539,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sa
     </div>
     <div class="chat-header-right">
       <span class="chat-user-pill" id="chatUserPill"></span>
+      <button class="icoBtn acall-btn" id="acallBtn" title="Voice Call">📞</button>
       <button class="icoBtn vcall-btn" id="vcallBtn" title="Video Call">📹</button>
       <button class="icoBtn" id="minBtn">—</button>
     </div>
@@ -605,6 +634,52 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sa
     <div class="vc-caller-sub" id="vcCallingSub">Ringing…</div>
     <div class="vc-incoming-actions">
       <button class="vc-decline-btn" id="vcCancelBtn">📵</button>
+    </div>
+    <div class="vc-btn-labels"><span>Cancel</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     AUDIO CALL OVERLAY
+══════════════════════════════════ -->
+<div id="acallOverlay">
+  <!-- Incoming audio call -->
+  <div id="acallIncoming">
+    <div class="vc-caller-av" id="acIncomingAv">?</div>
+    <div class="vc-caller-name" id="acIncomingName">Calling…</div>
+    <div class="vc-caller-sub">Incoming voice call</div>
+    <div class="vc-incoming-actions">
+      <button class="vc-decline-btn" id="acDeclineBtn">📵</button>
+      <button class="vc-answer-btn" id="acAnswerBtn">📞</button>
+    </div>
+    <div class="vc-btn-labels"><span>Decline</span><span>Answer</span></div>
+  </div>
+  <!-- Active audio call -->
+  <div id="acallActive" style="display:none">
+    <div class="vc-caller-av" id="acActiveAv">?</div>
+    <div class="vc-caller-name" id="acActiveName">In call</div>
+    <div class="ac-wave idle">
+      <div class="ac-bar"></div><div class="ac-bar"></div><div class="ac-bar"></div>
+      <div class="ac-bar"></div><div class="ac-bar"></div><div class="ac-bar"></div>
+      <div class="ac-bar"></div><div class="ac-bar"></div><div class="ac-bar"></div>
+    </div>
+    <div class="vc-timer" id="acTimer">0:00</div>
+    <div class="vc-incoming-actions" style="margin-top:40px">
+      <button class="vc-ctrl-btn" id="acMuteBtn">🎙️</button>
+      <button class="vc-ctrl-btn vc-end-btn" id="acEndBtn">📵</button>
+      <button class="vc-ctrl-btn" id="acSpkBtn">🔊</button>
+    </div>
+    <div class="vc-btn-labels" style="gap:30px">
+      <span>Mute</span><span>End</span><span>Speaker</span>
+    </div>
+  </div>
+  <!-- Outgoing audio call -->
+  <div id="acallCalling" style="display:none">
+    <div class="vc-caller-av" id="acCallingAv">?</div>
+    <div class="vc-caller-name" id="acCallingName">Calling…</div>
+    <div class="vc-caller-sub" id="acCallingSub">Ringing…</div>
+    <div class="vc-incoming-actions">
+      <button class="vc-decline-btn" id="acCancelBtn">📵</button>
     </div>
     <div class="vc-btn-labels"><span>Cancel</span></div>
   </div>
@@ -749,12 +824,53 @@ function listenSeen(){
 chatBody.addEventListener("scroll",()=>{if(chatOpen&&me)markSeen();},{passive:true});
 
 /* PRESENCE */
-function setOnline(on){if(!me)return;const ref=db.ref("akchat/online/"+me);if(on){ref.set(true).catch(()=>{});ref.onDisconnect().remove();}else ref.remove().catch(()=>{});}
+function setOnline(on){
+  if(!me)return;
+  const ref=db.ref("akchat/online/"+me);
+  if(on){
+    ref.set(true).catch(()=>{});
+    ref.onDisconnect().remove();
+    // Also save last-seen on disconnect
+    db.ref("akchat/lastSeen/"+me).onDisconnect().set(firebase.database.ServerValue.TIMESTAMP);
+  } else {
+    ref.remove().catch(()=>{});
+    // Save last-seen timestamp now
+    db.ref("akchat/lastSeen/"+me).set(firebase.database.ServerValue.TIMESTAMP).catch(()=>{});
+  }
+}
+
+function fmtLastSeen(ts){
+  if(!ts)return"Last seen: never";
+  const d=new Date(ts);
+  const diff=Date.now()-ts;
+  const mins=Math.floor(diff/60000);
+  const hrs=Math.floor(diff/3600000);
+  const days=Math.floor(diff/86400000);
+  const timeStr=d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+  if(diff<60000)return"Last seen: just now";
+  if(mins<60)return"Last seen: "+mins+" min"+(mins>1?"s":"")+" ago at "+timeStr;
+  if(hrs<24)return"Last seen: today at "+timeStr;
+  if(days===1)return"Last seen: yesterday at "+timeStr;
+  if(days<7)return"Last seen: "+d.toLocaleDateString([],{weekday:"short"})+" at "+timeStr;
+  return"Last seen: "+d.toLocaleDateString([],{day:"numeric",month:"short"})+" at "+timeStr;
+}
+
 function listenPresence(){
   ["Aku","Billu"].forEach(u=>{
     db.ref("akchat/online/"+u).on("value",snap=>{
-      const dot=u==="Aku"?dAku:dBillu;dot.className="uc-dot"+(snap.val()?" on":"");
-      if(me&&u!==me){otherStatus.className="av-status"+(snap.val()?" online":"");chatHeaderSub.textContent=snap.val()?"Active now":"Last seen recently";}
+      const dot=u==="Aku"?dAku:dBillu;
+      dot.className="uc-dot"+(snap.val()?" on":"");
+      if(me&&u!==me){
+        otherStatus.className="av-status"+(snap.val()?" online":"");
+        if(snap.val()){
+          chatHeaderSub.textContent="🟢 Active now";
+        } else {
+          // Live-listen to lastSeen so it updates immediately when they go offline
+          db.ref("akchat/lastSeen/"+u).on("value",lsSnap=>{
+            chatHeaderSub.textContent=fmtLastSeen(lsSnap.val());
+          });
+        }
+      }
     });
   });
 }
@@ -852,7 +968,13 @@ function showCtx(key,data,x,y){
   items.forEach(item=>{const el=document.createElement("div");el.className="ctx-item"+(item.danger?" danger":"");el.innerHTML=`<span class="ctx-i">${item.icon}</span><span>${item.label}</span>`;el.addEventListener("pointerup",e=>{e.stopPropagation();closeCtx();hideMenuDim();item.fn();});menu.appendChild(el);});
   document.body.appendChild(menu);const mw=menu.offsetWidth,mh=menu.offsetHeight;let cx=x,cy=y;if(cx+mw>window.innerWidth-8)cx=window.innerWidth-mw-8;if(cy+mh>window.innerHeight-8)cy=y-mh;if(cy<8)cy=8;if(cx<8)cx=8;menu.style.left=cx+"px";menu.style.top=cy+"px";activeCtx=menu;showMenuDim();
 }
-function deleteMsg(key){db.ref("akchat/messages/"+key).update({text:"🚫 This message was deleted",deleted:true,imgUrl:null,videoUrl:null,audioUrl:null}).catch(e=>showBanner("Delete failed: "+e.code));db.ref("akchat/reactions/"+key).remove().catch(()=>{});}
+function deleteMsg(key){
+  // Truly remove from database — no trace left
+  db.ref("akchat/messages/"+key).remove().catch(e=>showBanner("Delete failed: "+e.code));
+  db.ref("akchat/reactions/"+key).remove().catch(()=>{});
+  // Also remove from local DOM immediately
+  if(msgMap[key]){msgMap[key].wrap.remove();delete msgMap[key];}
+}
 function showMenuDim(){menuDim.classList.add("on");}
 function hideMenuDim(){menuDim.classList.remove("on");}
 menuDim.addEventListener("pointerup",()=>{closeCtx();closePicker();hideMenuDim();});
@@ -1165,6 +1287,149 @@ vcCamBtn.addEventListener("click",()=>{
   vcLocalVideo.style.opacity=vcCamOff?"0.3":"1";
 });
 
+/* ═══════════════════════════════════════════
+   VOICE CALLING — PeerJS (audio only)
+═══════════════════════════════════════════ */
+const AC_PEER_IDS={Aku:"akchat-aku-audio-2026",Billu:"akchat-billu-audio-2026"};
+let acPeer=null,acLocalStream=null,acActiveCall=null,acTimerInt=null,acSecs=0;
+let acMuted=false;
+
+const acOverlay=$("acallOverlay");
+const acIncoming=$("acallIncoming"),acActive=$("acallActive"),acCallingScr=$("acallCalling");
+const acIncomingAv=$("acIncomingAv"),acIncomingName=$("acIncomingName");
+const acCallingAv=$("acCallingAv"),acCallingName=$("acCallingName"),acCallingSub=$("acCallingSub");
+const acActiveAv=$("acActiveAv"),acActiveName=$("acActiveName"),acTimerEl=$("acTimer");
+const acAnswerBtn=$("acAnswerBtn"),acDeclineBtn=$("acDeclineBtn"),acCancelBtn=$("acCancelBtn");
+const acEndBtn=$("acEndBtn"),acMuteBtn=$("acMuteBtn"),acSpkBtn=$("acSpkBtn");
+const acallBtn=$("acallBtn");
+
+// Hidden audio element for remote stream
+const acRemoteAudio=document.createElement("audio");
+acRemoteAudio.autoplay=true;
+acRemoteAudio.style.display="none";
+document.body.appendChild(acRemoteAudio);
+
+function acFmt(s){const m=Math.floor(s/60),sec=s%60;return m+":"+(sec<10?"0":"")+sec;}
+function acStartTimer(){acSecs=0;clearInterval(acTimerInt);acTimerInt=setInterval(()=>{acSecs++;acTimerEl.textContent=acFmt(acSecs);},1000);}
+function acStopTimer(){clearInterval(acTimerInt);acTimerEl.textContent="0:00";}
+
+function acShowScreen(which){
+  acIncoming.style.display="none";acActive.style.display="none";acCallingScr.style.display="none";
+  if(which==="incoming")acIncoming.style.display="flex";
+  else if(which==="active")acActive.style.display="flex";
+  else if(which==="calling")acCallingScr.style.display="flex";
+  acOverlay.classList.add("show");
+}
+
+function acHideOverlay(){
+  acOverlay.classList.remove("show");
+  acStopTimer();
+  if(acActiveCall){try{acActiveCall.close();}catch(e){}acActiveCall=null;}
+  if(acLocalStream){acLocalStream.getTracks().forEach(t=>t.stop());acLocalStream=null;}
+  acRemoteAudio.srcObject=null;
+  acallBtn.classList.remove("in-call");
+  acMuted=false;acMuteBtn.textContent="🎙️";acMuteBtn.classList.remove("muted");
+}
+
+async function acGetMic(){
+  if(acLocalStream)return acLocalStream;
+  acLocalStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+  return acLocalStream;
+}
+
+function acSetupRemote(stream){
+  acRemoteAudio.srcObject=stream;
+  // Animate wave bars
+  const wave=acActive.querySelector(".ac-wave");
+  if(wave)wave.classList.remove("idle");
+}
+
+function acHandleIncoming(call){
+  const callerUser=me==="Aku"?"Billu":"Aku";
+  const c=USER_COLORS[callerUser]||{av:"#888"};
+  acIncomingAv.textContent=callerUser[0];acIncomingAv.style.background=c.av;
+  acIncomingName.textContent=callerUser;
+  acShowScreen("incoming");
+
+  acAnswerBtn.onclick=async()=>{
+    const stream=await acGetMic().catch(()=>{showBanner("Mic permission denied");acHideOverlay();return null;});
+    if(!stream)return;
+    call.answer(stream);
+    acActiveCall=call;
+    acActiveAv.textContent=callerUser[0];acActiveAv.style.background=c.av;
+    acActiveName.textContent=callerUser;
+    call.on("stream",remoteStream=>{acSetupRemote(remoteStream);acShowScreen("active");acStartTimer();acallBtn.classList.add("in-call");});
+    call.on("close",()=>{showBanner(callerUser+" ended the voice call");acHideOverlay();});
+    call.on("error",()=>{showBanner("Voice call error");acHideOverlay();});
+  };
+  acDeclineBtn.onclick=()=>{call.close();acHideOverlay();};
+}
+
+function acInitPeer(){
+  if(acPeer)return;
+  const pid=AC_PEER_IDS[me];
+  acPeer=new Peer(pid,{debug:0});
+  acPeer.on("error",err=>{
+    if(err.type==="unavailable-id"){acPeer=new Peer(pid+"_"+Date.now(),{debug:0});acPeer.on("call",acHandleIncoming);}
+  });
+  acPeer.on("open",()=>console.log("[AC] Voice peer ready"));
+  acPeer.on("call",acHandleIncoming);
+}
+
+// Outgoing voice call
+acallBtn.addEventListener("click",async()=>{
+  if(!me){showBanner("Login first");return;}
+  if(!acPeer){showBanner("Voice call service not ready");return;}
+  const other=me==="Aku"?"Billu":"Aku";
+  const c=USER_COLORS[other]||{av:"#888"};
+  acCallingAv.textContent=other[0];acCallingAv.style.background=c.av;
+  acCallingName.textContent=other;acCallingSub.textContent="Ringing…";
+  acShowScreen("calling");
+
+  const stream=await acGetMic().catch(()=>{showBanner("Mic permission denied");acHideOverlay();return null;});
+  if(!stream)return;
+
+  const call=acPeer.call(AC_PEER_IDS[other],stream);
+  acActiveCall=call;
+  if(!call){showBanner(other+" not available");acHideOverlay();return;}
+
+  call.on("stream",remoteStream=>{
+    acSetupRemote(remoteStream);
+    acActiveAv.textContent=other[0];acActiveAv.style.background=c.av;
+    acActiveName.textContent=other;
+    acShowScreen("active");acStartTimer();acallBtn.classList.add("in-call");
+  });
+  call.on("close",()=>{showBanner(other+" ended the call");acHideOverlay();});
+  call.on("error",()=>{showBanner(other+" didn't answer");acHideOverlay();});
+
+  const timeout=setTimeout(()=>{
+    if(acOverlay.classList.contains("show")&&acActive.style.display==="none"){showBanner(other+" didn't answer");acHideOverlay();}
+  },40000);
+  call.on("stream",()=>clearTimeout(timeout));
+  call.on("close",()=>clearTimeout(timeout));
+});
+
+acCancelBtn.onclick=()=>acHideOverlay();
+acEndBtn.onclick=()=>acHideOverlay();
+
+acMuteBtn.addEventListener("click",()=>{
+  if(!acLocalStream)return;
+  acMuted=!acMuted;
+  acLocalStream.getAudioTracks().forEach(t=>t.enabled=!acMuted);
+  acMuteBtn.textContent=acMuted?"🔇":"🎙️";
+  acMuteBtn.classList.toggle("muted",acMuted);
+});
+
+acSpkBtn.addEventListener("click",()=>{
+  // Toggle speaker on mobile (best effort)
+  if(acRemoteAudio.sinkId!==undefined){
+    showBanner("Speaker toggle not supported on this browser");
+  }
+});
+
+// Init audio peer alongside video peer
+const _vcInitPeer=vcInitPeer;
+function vcInitPeer(){_vcInitPeer();acInitPeer();}
 
 </script>
 </body>
