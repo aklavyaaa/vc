@@ -828,773 +828,234 @@ function renderMsg(key,d){
     const rpt=document.createElement("div");rpt.className="rp-txt";
     if(d.replyTo.imgUrl){rpt.textContent="📷 Photo";const rpImg=document.createElement("img");rpImg.className="rp-img-thumb";rpImg.src=d.replyTo.imgUrl;rp.appendChild(rpn);rp.appendChild(rpt);rp.appendChild(rpImg);}
     else if(d.replyTo.videoUrl){rpt.textContent="🎥 Video";rp.appendChild(rpn);rp.appendChild(rpt);}
-    else if(d.replyTo.audioUrl){rpt.textContent="🎤 Voice note";rp.appendChild(-direction:column;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
-#acallOverlay.show{display:flex;}
-#acallIncoming,#acallActive,#acallCalling{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;gap:10px;padding:40px 20px;}
-.ac-wave{display:flex;align-items:center;gap:5px;height:50px;margin:16px 0;}
-.ac-bar{width:5px;border-radius:3px;background:linear-gradient(to top,#22c55e,#4ade80);animation:acWave 1s ease-in-out infinite;}
-.ac-bar:nth-child(1){animation-delay:0s;height:20px;}.ac-bar:nth-child(2){animation-delay:.1s;height:35px;}.ac-bar:nth-child(3){animation-delay:.2s;height:50px;}.ac-bar:nth-child(4){animation-delay:.3s;height:30px;}.ac-bar:nth-child(5){animation-delay:.4s;height:45px;}.ac-bar:nth-child(6){animation-delay:.3s;height:30px;}.ac-bar:nth-child(7){animation-delay:.2s;height:50px;}.ac-bar:nth-child(8){animation-delay:.1s;height:35px;}.ac-bar:nth-child(9){animation-delay:0s;height:20px;}
-@keyframes acWave{0%,100%{transform:scaleY(.4);opacity:.5;}50%{transform:scaleY(1);opacity:1;}}
-.ac-wave.idle .ac-bar{animation:none;transform:scaleY(.3);opacity:.4;}
-
-</style>
-</head>
-<body>
-<div class="db-banner" id="dbBanner"></div>
-
-<!-- BROWSER BAR -->
-<div class="browser-bar">
-  <div class="browser-tabs">
-    <div class="tab active">🛒 EJAA · Orders · #5837 <span class="tab-close">✕</span></div>
-    <div class="tab">💬 WhatsApp <span class="tab-close">✕</span></div>
-  </div>
-  <div class="address-bar">🔒 https://admin.shopify.com/store/ejaastore/orders/7303512555798</div>
-</div>
-
-<!-- SHOPIFY HEADER -->
-<div class="shopify-header">
-  <div class="shopify-logo">
-    <svg width="24" height="24" viewBox="0 0 28 28"><rect width="28" height="28" rx="6" fill="#96bf48"/><text x="5" y="21" font-size="18" fill="#fff">S</text></svg>
-    shopify <span class="shopify-spring">Spring '26</span>
-  </div>
-  <div class="shopify-search">
-    <span>🔍</span><span style="opacity:.5">Search</span>
-    <span style="margin-left:auto;background:#3a3a5e;padding:1px 6px;border-radius:4px;font-size:10px;color:#aaa">⌘K</span>
-  </div>
-  <div class="shopify-header-right">
-    <button class="shopify-icon-btn">🔔</button>
-    <button class="shopify-icon-btn">⚙️</button>
-    <button class="profile-btn" id="profileBtn">EJ</button>
-  </div>
-</div>
-
-<div class="main-layout">
-  <div class="sidebar">
-    <div class="sidebar-item active">🏠<span>Home</span></div>
-    <div class="sidebar-item">📦<span>Orders</span><span class="sidebar-badge">2,889</span></div>
-    <div class="sidebar-sub">Drafts</div>
-    <div class="sidebar-sub">Abandoned checkouts</div>
-    <div class="sidebar-item">📌<span>Products</span></div>
-    <div class="sidebar-item">👤<span>Customers</span></div>
-    <div class="sidebar-item">📈<span>Growth</span></div>
-    <div class="sidebar-item">🏷️<span>Discounts</span></div>
-    <div class="sidebar-item">📊<span>Analytics</span></div>
-    <div class="sidebar-divider"></div>
-    <div class="sidebar-item">🛍️<span>Online Store</span></div>
-    <div class="sidebar-divider"></div>
-    <div class="sidebar-item">⚙️<span>Settings</span></div>
-  </div>
-
-  <div class="content">
-    <div class="breadcrumb">📋 › Orders</div>
-    <div class="order-row">
-      <div>
-        <div class="order-title">
-          <h1>#5837</h1>
-          <span class="badge badge-yellow">⏳ Payment pending</span>
-          <span class="badge badge-orange">📦 Unfulfilled</span>
-        </div>
-        <div class="order-meta">June 18, 2026 at 12:05 am from 1CCO (via import)</div>
-      </div>
-      <div class="order-actions">
-        <button class="btn">Restock</button><button class="btn">Edit</button>
-        <button class="btn">Print ▾</button><button class="btn">More ▾</button>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header"><span>📦</span><span class="badge-unfulfilled">Unfulfilled</span></div>
-      <div class="shipping-row">🚚 Standard Shipping</div>
-      <div class="product-row">
-        <div class="product-img">💍</div>
-        <div class="product-info">
-          <div class="product-name">Saanjh Silver Tilhari</div>
-          <div class="product-variant">Oxidised (Black) · TH-2</div>
-        </div>
-        <span class="product-price">₹4,500.00</span>&nbsp;
-        <span class="product-final">₹4,050.00</span>&nbsp;
-        <span class="product-qty">× 1</span>&nbsp;
-        <span class="product-total">₹4,050.00</span>
-      </div>
-      <div style="display:flex;justify-content:flex-end;padding:0 15px 12px;">
-        <button class="fulfill-btn">Mark as fulfilled ▾</button>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header"><span>⏳</span><span class="badge-pending">Payment pending</span><span style="margin-left:auto;color:#888">···</span></div>
-      <div class="warning-box">⚠️ COD is still processing. Wait for payment before fulfilling.</div>
-      <div class="summary-row"><span>Subtotal</span><span>1 item · ₹4,050.00</span></div>
-      <div class="summary-row"><span>Shipping</span><span>Standard · ₹0.00</span></div>
-      <div class="summary-row total"><span>Total</span><span>₹4,050.00</span></div>
-      <div class="summary-row"><span>Paid</span><span>₹0.00</span></div>
-      <div class="summary-row"><span>Balance</span><span style="color:#e44d36;font-weight:600">₹4,050.00</span></div>
-    </div>
-  </div>
-
-  <div class="right-panel">
-    <div class="panel-section">
-      <div class="panel-title">Notes <span class="panel-edit">✏️</span></div>
-      <div class="panel-text" style="color:#aaa;font-style:italic">No notes from customer</div>
-    </div>
-    <div class="panel-section">
-      <div class="panel-title">Details <span class="panel-edit">✏️</span></div>
-      <div class="panel-text"><b>fbclid</b><br>PAZXh0bgNh...<br><br><b>utm_medium</b><br>Open+(FB+Insta)<br><br><b>cart_token</b><br>hWND7rKg...</div>
-    </div>
-    <div class="panel-section">
-      <div class="panel-title">Tags</div>
-      <div class="tag-list">
-        <div class="tag">COD</div><div class="tag">1CCO</div>
-        <div class="tag">CBO+Insta</div><div class="tag">All+Product</div>
-        <div class="tag">Copy</div><div class="tag">utm_campaign</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- LOGIN MODAL -->
-<div class="modal-overlay" id="modal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-icon">🔐</div>
-    <h2>EJAA Secure Panel</h2>
-    <p>Enter your 4-digit access code</p>
-    <input type="password" id="codeInput" maxlength="4" placeholder="••••" autocomplete="off" inputmode="numeric"/>
-    <div class="modal-error" id="modalError">❌ Wrong code. Try again.</div>
-    <button class="modal-btn" id="loginBtn">Continue →</button>
-  </div>
-</div>
-
-<!-- CHAT BACKDROP -->
-<div class="chat-backdrop" id="chatBackdrop"></div>
-
-<!-- CHAT PANEL -->
-<div class="chat-panel" id="chatPanel">
-  <div class="chat-header">
-    <button class="chat-back-btn" id="backBtn">‹</button>
-    <div class="chat-av-wrap">
-      <div class="chat-av" id="chatAv">💬</div>
-      <div class="av-status" id="otherStatus"></div>
-    </div>
-    <div class="chat-header-info">
-      <div class="chat-header-name" id="chatHeaderName">AKChat</div>
-      <div class="chat-header-sub" id="chatHeaderSub"></div>
-    </div>
-    <div class="chat-header-right">
-      <span class="chat-user-pill" id="chatUserPill"></span>
-      <button class="icoBtn" id="minBtn">—</button>
-    </div>
-  </div>
-
-  <div class="online-bar">
-    <div class="uc"><div class="uc-dot" id="dAku"></div>Aku</div>
-    <div style="width:1px;height:12px;background:#dbdbdb"></div>
-    <div class="uc"><div class="uc-dot" id="dBillu"></div>Billu</div>
-  </div>
-
-  <div class="chat-body" id="chatBody">
-    <div class="chat-empty" id="chatEmpty">
-      <span>💬</span>No messages yet.<br>Say hello!
-    </div>
-    <div class="typing-row" id="typingRow">
-      <div class="typing-bbl"><div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div></div>
-      <span class="typing-label" id="typingLabel"></span>
-    </div>
-  </div>
-
-  <!-- Reply bar -->
-  <div class="reply-bar" id="replyBar">
-    <div class="rb-line"></div>
-    <div class="rb-info">
-      <div class="rb-name" id="rbName"></div>
-      <div class="rb-txt" id="rbTxt"></div>
-    </div>
-    <img class="rb-thumb" id="rbThumb" src="" alt="" style="display:none"/>
-    <button class="rb-cancel" id="rbCancel">✕</button>
-  </div>
-
-  <!-- Edit bar -->
-  <div class="edit-bar" id="editBar">
-    <span style="font-size:14px">✏️</span>
-    <span class="edit-bar-txt" id="editBarTxt">Editing…</span>
-    <button class="edit-cancel-btn" id="editCancel">✕</button>
-  </div>
-
-  <!-- Footer with emoji panel -->
-  <div style="position:relative;">
-    <div class="emoji-panel" id="emojiPanel"></div>
-    <!-- Recording HUD -->
-    <div class="rec-hud" id="recHud">
-      <div class="rec-dot"></div>
-      <span class="rec-timer" id="recTimer">0:00</span>
-      <span class="rec-label">Recording voice note…</span>
-      <button class="rec-cancel" id="recCancel" title="Cancel">✕</button>
-    </div>
-    <div class="chat-footer">
-      <div class="footer-left">
-        <button class="emoji-btn" id="emojiBtn" title="Emoji">😊</button>
-        <button class="img-btn" id="imgBtn" title="Send image/video">📷</button>
-        <input type="file" id="imgFileInput" accept="image/*,video/*"/>
-        <button class="mic-btn" id="micBtn" title="Hold to record voice note">🎤</button>
-      </div>
-      <textarea class="chat-input" id="chatInput" rows="1" placeholder="Message…"></textarea>
-      <button class="send-btn" id="sendBtn">➤</button>
-    </div>
-  </div>
-</div>
-
-<!-- PILL -->
-<div class="chat-pill" id="chatPill">
-  <div class="pill-dot"></div>
-  <span>AKChat</span>
-  <span class="unread-badge" id="unreadBadge" style="display:none">0</span>
-</div>
-
-<!-- Menu dim -->
-<div class="menu-dim" id="menuDim"></div>
-
-<!-- Upload overlay -->
-<div class="upload-overlay" id="uploadOverlay">📤 <span id="uploadPct">Uploading…</span></div>
-
-<!-- Fullscreen image viewer -->
-<div class="img-viewer" id="imgViewer">
-  <a class="img-viewer-dl" id="imgViewerDl" download="photo.jpg" title="Download">⬇</a>
-  <button class="img-viewer-close" id="imgViewerClose">✕</button>
-  <img id="imgViewerImg" src="" alt=""/>
-</div>
-
-<!-- Fullscreen video viewer -->
-<div class="vid-viewer" id="vidViewer">
-  <button class="vid-viewer-close" id="vidViewerClose">✕</button>
-  <a class="vid-viewer-dl" id="vidViewerDl" download="video.mp4" title="Download">⬇</a>
-  <div class="vid-viewer-inner">
-    <video id="vidViewerVid" controls playsinline preload="metadata"></video>
-  </div>
-</div>
-
-<script>
-/* ═══════════════════════════════════════════
-   FIREBASE
-═══════════════════════════════════════════ */
-const FC={
-  apiKey:"AIzaSyDycrAmK2ObcbcT-L8ord5PDXgKVxonqcw",
-  authDomain:"akchat-fa72d.firebaseapp.com",
-  databaseURL:"https://akchat-fa72d-default-rtdb.firebaseio.com",
-  projectId:"akchat-fa72d",
-  storageBucket:"akchat-fa72d.firebasestorage.app",
-  messagingSenderId:"224246768048",
-  appId:"1:224246768048:web:8a10894cce436de8e2b675"
-};
-firebase.initializeApp(FC);
-const db=firebase.database();
-
-/* ═══════════════════════════════════════════
-   CONFIG
-═══════════════════════════════════════════ */
-const CODES={"2006":"Aku","2008":"Billu"};
-const USER_COLORS={
-  Aku:{bg:"#dcfce7",border:"#16a34a",text:"#15803d",av:"linear-gradient(135deg,#16a34a,#4ade80)"},
-  Billu:{bg:"#dbeafe",border:"#2563eb",text:"#1d4ed8",av:"linear-gradient(135deg,#1d4ed8,#60a5fa)"}
-};
-const EMOJIS_REACT=["❤️","😂","😮","😢","👍","🔥","😍","🎉"];
-const EMOJIS_PANEL=["😀","😁","😂","🤣","😃","😄","😅","😆","😉","😊","😋","😎","😍","😘","🥰","😗","🤩","🥳","😜","🤪","😛","🤑","🤗","🤔","🤐","😐","😑","😶","😏","😒","😞","😔","😟","😕","☹️","😣","😖","😫","😩","🥺","😢","😭","😤","😠","😡","🤬","😈","💀","☠️","💩","🤡","👹","👺","❤️","🧡","💛","💚","💙","💜","🖤","🤍","🤎","💔","❣️","💕","💞","💓","💗","💖","💘","💝","✨","🔥","⚡","🌈","🎉","🎊","🥂","🍾","👏","🙌","🤝","👍","👎","✌️","🤞","🤙","💪","🙏","💯","✅","🆗","🔝"];
-
-/* ═══════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════ */
-let me=null,chatOpen=false,listening=false;
-let typingTimer=null,firstLoad=true;
-let editKey=null,unread=0;
-let replyTo=null;
-let msgMap={};
-let lastDate="";
-
-/* ═══════════════════════════════════════════
-   DOM
-═══════════════════════════════════════════ */
-const $=id=>document.getElementById(id);
-const modal=$("modal"),codeInput=$("codeInput"),loginBtn=$("loginBtn"),modalError=$("modalError");
-const chatPanel=$("chatPanel"),chatBody=$("chatBody"),chatEmpty=$("chatEmpty");
-const chatInput=$("chatInput"),sendBtn=$("sendBtn");
-const chatPill=$("chatPill"),minBtn=$("minBtn"),backBtn=$("backBtn");
-const chatUserPill=$("chatUserPill"),chatHeaderName=$("chatHeaderName"),chatHeaderSub=$("chatHeaderSub");
-const chatAv=$("chatAv"),otherStatus=$("otherStatus");
-const typingRow=$("typingRow"),typingLabel=$("typingLabel");
-const unreadBadge=$("unreadBadge"),dbBanner=$("dbBanner");
-const editBar=$("editBar"),editBarTxt=$("editBarTxt"),editCancel=$("editCancel");
-const replyBar=$("replyBar"),rbName=$("rbName"),rbTxt=$("rbTxt"),rbThumb=$("rbThumb"),rbCancel=$("rbCancel");
-const chatBackdrop=$("chatBackdrop"),menuDim=$("menuDim");
-const dAku=$("dAku"),dBillu=$("dBillu");
-const profileBtn=$("profileBtn");
-const imgBtn=$("imgBtn"),imgFileInput=$("imgFileInput");
-const imgViewer=$("imgViewer"),imgViewerImg=$("imgViewerImg"),imgViewerClose=$("imgViewerClose"),imgViewerDl=$("imgViewerDl");
-const emojiBtn=$("emojiBtn"),emojiPanel=$("emojiPanel");
-const uploadOverlay=$("uploadOverlay"),uploadPct=$("uploadPct");
-const micBtn=$("micBtn"),recHud=$("recHud"),recTimer=$("recTimer"),recCancel=$("recCancel");
-
-/* ═══════════════════════════════════════════
-   VOICE NOTE RECORDING
-═══════════════════════════════════════════ */
-let mediaRecorder=null,audioChunks=[],isRecording=false,recTimerInterval=null,recSeconds=0;
-
-function fmtRecTime(s){const m=Math.floor(s/60),sec=s%60;return m+":"+(sec<10?"0":"")+sec;}
-
-function startRecording(){
-  if(!me){showBanner("Please login first.");return;}
-  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
-    audioChunks=[];isRecording=true;recSeconds=0;
-    mediaRecorder=new MediaRecorder(stream);
-    mediaRecorder.start();
-    mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};
-    mediaRecorder.onstop=()=>{
-      stream.getTracks().forEach(t=>t.stop());
-      if(audioChunks.length>0){
-        const blob=new Blob(audioChunks,{type:"audio/webm"});
-        uploadVoiceNote(blob);
-      }
-      audioChunks=[];
-    };
-    // UI
-    micBtn.textContent="🛑";micBtn.classList.add("recording");
-    recHud.classList.add("on");
-    recTimer.textContent="0:00";
-    recTimerInterval=setInterval(()=>{recSeconds++;recTimer.textContent=fmtRecTime(recSeconds);},1000);
-  }).catch(()=>showBanner("❌ Microphone permission denied."));
-}
-
-function stopRecording(cancel=false){
-  if(!isRecording||!mediaRecorder)return;
-  clearInterval(recTimerInterval);
-  isRecording=false;
-  if(cancel)audioChunks=[];
-  mediaRecorder.stop();
-  micBtn.textContent="🎤";micBtn.classList.remove("recording");
-  recHud.classList.remove("on");
-}
-
-async function uploadVoiceNote(blob){
-  if(!me)return;
-  const savedReply=replyTo?{...replyTo}:null;
-  cancelReply();
-  uploadOverlay.classList.add("show");
-  uploadPct.textContent="Sending voice note…";
-  try{
-    const fd=new FormData();
-    fd.append("upload_preset",CLOUDINARY_PRESET);
-    fd.append("file",blob,"voicenote.webm");
-    const resp=await fetch(CLOUDINARY_URL,{method:"POST",body:fd});
-    const data=await resp.json();
-    if(!data.secure_url)throw new Error(data.error?.message||"Upload failed");
-    uploadOverlay.classList.remove("show");
-    const payload={text:"",sender:me,ts:firebase.database.ServerValue.TIMESTAMP,audioUrl:data.secure_url};
-    if(savedReply)payload.replyTo=savedReply;
-    await db.ref("akchat/messages").push(payload);
-    hideBanner();
-  }catch(err){
-    uploadOverlay.classList.remove("show");
-    showBanner("Voice note failed: "+err.message);
+    else if(d.replyTo.audioUrl){rpt.textContent="🎤 Voice note";rp.appendChild(rpn);rp.appendChild(rpt);}
+    else{rpt.textContent=d.replyTo.text||"";rp.appendChild(rpn);rp.appendChild(rpt);}
+    rp.addEventListener("click",e=>{e.stopPropagation();const orig=msgMap[d.replyTo.key];if(orig){orig.wrap.scrollIntoView({behavior:"smooth",block:"center"});orig.wrap.style.transition="background .3s";orig.wrap.style.background="rgba(128,0,32,.15)";setTimeout(()=>{if(msgMap[d.replyTo.key])msgMap[d.replyTo.key].wrap.style.background="";},700);}});
+    bbl.appendChild(rp);
   }
-}
 
-// Desktop: click to start / click to stop
-micBtn.addEventListener("click",e=>{
-  e.stopPropagation();
-  if(!isRecording)startRecording();
-  else stopRecording(false);
-});
-
-// Mobile: hold to record, release to send
-micBtn.addEventListener("touchstart",e=>{
-  e.preventDefault();e.stopPropagation();
-  if(!isRecording)startRecording();
-},{passive:false});
-micBtn.addEventListener("touchend",e=>{
-  e.preventDefault();e.stopPropagation();
-  if(isRecording)stopRecording(false);
-},{passive:false});
-
-// Cancel button
-recCancel.addEventListener("click",e=>{
-  e.stopPropagation();
-  stopRecording(true);
-});
-
-/* ═══════════════════════════════════════════
-   BANNER
-═══════════════════════════════════════════ */
-function showBanner(m){dbBanner.textContent=m;dbBanner.classList.add("show");}
-function hideBanner(){dbBanner.classList.remove("show");}
-
-/* ═══════════════════════════════════════════
-   BUILD EMOJI PANEL
-═══════════════════════════════════════════ */
-EMOJIS_PANEL.forEach(em=>{
-  const el=document.createElement("span");el.className="ep-e";el.textContent=em;
-  el.addEventListener("click",e=>{
-    e.stopPropagation();
-    const pos=chatInput.selectionStart;
-    const val=chatInput.value;
-    chatInput.value=val.slice(0,pos)+em+val.slice(pos);
-    chatInput.focus();
-    chatInput.setSelectionRange(pos+em.length,pos+em.length);
-    chatInput.style.height="auto";
-    chatInput.style.height=Math.min(chatInput.scrollHeight,100)+"px";
-  });
-  emojiPanel.appendChild(el);
-});
-
-emojiBtn.addEventListener("click",e=>{
-  e.stopPropagation();
-  emojiPanel.classList.toggle("on");
-});
-document.addEventListener("click",()=>emojiPanel.classList.remove("on"));
-emojiPanel.addEventListener("click",e=>e.stopPropagation());
-
-/* ═══════════════════════════════════════════
-   LOGIN
-═══════════════════════════════════════════ */
-profileBtn.addEventListener("click",()=>{
-  if(me){openChat();return;}
-  modal.classList.add("active");
-  setTimeout(()=>codeInput.focus(),100);
-});
-modal.addEventListener("click",e=>{if(e.target===modal)closeModal();});
-
-function closeModal(){
-  modal.classList.remove("active");
-  codeInput.value="";
-  modalError.style.display="none";
-}
-
-function doLogin(){
-  const code=codeInput.value.trim();
-  const user=CODES[code];
-  if(!user){modalError.style.display="block";codeInput.value="";codeInput.focus();return;}
-  me=user;
-  closeModal();
-
-  const c=USER_COLORS[me];
-  chatUserPill.textContent=me;
-  chatUserPill.style.background=c.bg;
-  chatUserPill.style.borderColor=c.border;
-  chatUserPill.style.color=c.text;
-  chatAv.textContent=me[0];
-  chatAv.style.background=c.av;
-  chatHeaderName.textContent="AKChat";
-
-  openChat();
-  if(!listening){listening=true;startListening();}
-  setOnline(true);
-}
-
-loginBtn.addEventListener("click",doLogin);
-codeInput.addEventListener("keydown",e=>{if(e.key==="Enter")doLogin();});
-
-/* ═══════════════════════════════════════════
-   OPEN / CLOSE
-═══════════════════════════════════════════ */
-function openChat(){
-  chatPanel.classList.add("active");
-  chatBackdrop.classList.add("active");
-  chatPill.classList.remove("on");
-  chatOpen=true;unread=0;unreadBadge.style.display="none";
-  scrollBottom();
-  markSeen();
-}
-function closeChat(){
-  chatPanel.classList.remove("active");
-  chatBackdrop.classList.remove("active");
-  chatOpen=false;
-  // Lock session: require PIN again
-  setOnline(false);
-  stopTyping();
-  me=null;
-  listening=false;
-  // Reset pill — never show it (user must re-login via profile button)
-  chatPill.classList.remove("on");
-  // Detach Firebase listeners so no ghost data
-  db.ref("akchat/messages").off();
-  db.ref("akchat/typing").off();
-  db.ref("akchat/reactions").off();
-  db.ref("akchat/seen").off();
-  // Reset UI state
-  cancelEdit();
-  cancelReply();
-  editKey=null;replyTo=null;firstLoad=true;lastDate="";
-  // Clear messages from DOM
-  Array.from(chatBody.children).forEach(c=>{
-    if(c!==typingRow&&!c.classList.contains("chat-empty"))c.remove();
-  });
-  chatEmpty.style.display="";
-  Object.keys(msgMap).forEach(k=>delete msgMap[k]);
-  typingRow.classList.remove("on");
-  chatUserPill.textContent="";
-  unread=0;unreadBadge.style.display="none";
-}
-chatBackdrop.addEventListener("click",closeChat);
-backBtn.addEventListener("click",closeChat);
-minBtn.addEventListener("click",e=>{e.stopPropagation();closeChat();});
-// Pill click → show login modal (never auto-open)
-chatPill.addEventListener("click",()=>{
-  modal.classList.add("active");
-  setTimeout(()=>codeInput.focus(),100);
-});
-
-/* ═══════════════════════════════════════════
-   SEEN (Read receipts)
-═══════════════════════════════════════════ */
-let seenListenerOff=null;
-
-function markSeen(){
-  if(!me||!chatOpen)return;
-  // Mark last read timestamp for me
-  db.ref("akchat/seen/"+me).set(firebase.database.ServerValue.TIMESTAMP).catch(()=>{});
-}
-
-function listenSeen(){
-  const other=me==="Aku"?"Billu":"Aku";
-  db.ref("akchat/seen/"+other).on("value",snap=>{
-    const seenTs=snap.val()||0;
-    // Update all outgoing messages: show seen label if their ts <= seenTs
-    Object.entries(msgMap).forEach(([key,node])=>{
-      if(!node.data||node.data.sender!==me)return;
-      const msgTs=node.data.ts||0;
-      const seenEl=node.wrap.querySelector(".seen-label");
-      if(seenTs>=msgTs&&msgTs>0){
-        if(!seenEl){
-          const lbl=document.createElement("div");lbl.className="seen-label";
-          lbl.innerHTML=`<span class="seen-av">${other[0]}</span><span>Seen</span>`;
-          node.wrap.appendChild(lbl);
-        }
-      } else {
-        if(seenEl)seenEl.remove();
-      }
-    });
-  });
-}
-
-// Also mark seen when body is scrolled (user reading old messages)
-chatBody.addEventListener("scroll",()=>{
-  if(chatOpen&&me) markSeen();
-},{passive:true});
-
-/* ═══════════════════════════════════════════
-   PRESENCE
-═══════════════════════════════════════════ */
-function fmtLastSeen(ts){
-  if(!ts)return"Last seen: a while ago";
-  const d=new Date(ts),diff=Date.now()-ts,mins=Math.floor(diff/60000),hrs=Math.floor(diff/3600000),days=Math.floor(diff/86400000);
-  const t=d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
-  if(diff<60000)return"Last seen: just now";
-  if(mins<60)return"Last seen: "+mins+"m ago";
-  if(hrs<24)return"Last seen: today at "+t;
-  if(days===1)return"Last seen: yesterday at "+t;
-  if(days<7)return"Last seen: "+d.toLocaleDateString([],{weekday:"short"})+" at "+t;
-  return"Last seen: "+d.toLocaleDateString([],{day:"numeric",month:"short"})+" at "+t;
-}
-function setOnline(on){
-  if(!me)return;
-  const ref=db.ref("akchat/online/"+me);
-  if(on){
-    ref.set(true).catch(()=>{});
-    ref.onDisconnect().remove();
-    db.ref("akchat/lastSeen/"+me).onDisconnect().set(firebase.database.ServerValue.TIMESTAMP);
-  } else {
-    ref.remove().catch(()=>{});
-    db.ref("akchat/lastSeen/"+me).set(firebase.database.ServerValue.TIMESTAMP).catch(()=>{});
+  if((d.imgUrl||d._localImg)&&!d.deleted){
+    const w2=document.createElement("div");w2.className="bbl-img-wrap";const img=document.createElement("img");img.style.opacity="0";img.style.transition="opacity .25s";img.loading="lazy";
+    if(d._localImg){img.src=d._localImg;img.style.opacity="1";if(d._uploading){const prog=document.createElement("div");prog.className="img-upload-progress";const bar=document.createElement("div");bar.className="img-upload-bar";prog.appendChild(bar);w2.appendChild(prog);}}
+    else{const shim=document.createElement("div");shim.className="img-loading";shim.textContent="📷";w2.appendChild(shim);img.onload=()=>{shim.remove();img.style.opacity="1";};img.src=d.imgUrl;}
+    img.addEventListener("click",e=>{e.stopPropagation();imgViewerImg.src=d.imgUrl||d._localImg||"";imgViewerDl.href=d.imgUrl||d._localImg||"";imgViewer.classList.add("on");});
+    w2.appendChild(img);bbl.appendChild(w2);
   }
+
+  if(d.audioUrl&&!d.deleted){
+    const ab=document.createElement("div");ab.className="bbl-audio";
+    const apb=document.createElement("button");apb.className="audio-play-btn";apb.innerHTML="<span>▶</span>";
+    const aww=document.createElement("div");aww.className="audio-wave-wrap";
+    const wEl=document.createElement("div");wEl.className="audio-wave";
+    const H=[40,60,80,55,70,90,45,75,85,50,65,95,60,70,40,80,55,90,65,50,75,85,45,70,60,80,50,65];
+    for(let i=0;i<28;i++){const b=document.createElement("div");b.className="wave-bar";b.style.height=H[i%H.length]+"%";wEl.appendChild(b);}
+    const atEl=document.createElement("span");atEl.className="audio-time";atEl.textContent="0:00";
+    aww.appendChild(wEl);aww.appendChild(atEl);ab.appendChild(apb);ab.appendChild(aww);bbl.appendChild(ab);
+    const aud=new Audio(d.audioUrl);aud.preload="metadata";let audPlaying=false;
+    const fmt2=s=>{if(!isFinite(s)||isNaN(s))return"0:00";const m=Math.floor(s/60),sec=Math.floor(s%60);return m+":"+(sec<10?"0":"")+sec;};
+    aud.addEventListener("loadedmetadata",()=>{atEl.textContent=fmt2(aud.duration);});
+    aud.addEventListener("timeupdate",()=>{atEl.textContent=fmt2(aud.currentTime)+" / "+fmt2(aud.duration);const pct=aud.duration?aud.currentTime/aud.duration:0;const bars=wEl.querySelectorAll(".wave-bar");const played=Math.round(pct*bars.length);bars.forEach((b,i)=>{b.classList.toggle("played",i<played);});});
+    aud.addEventListener("ended",()=>{audPlaying=false;apb.innerHTML="<span>▶</span>";atEl.textContent=fmt2(aud.duration);wEl.querySelectorAll(".wave-bar").forEach(b=>b.classList.remove("played"));});
+    apb.addEventListener("click",e=>{e.stopPropagation();if(audPlaying){aud.pause();audPlaying=false;apb.innerHTML="<span>▶</span>";}else{document.querySelectorAll(".audio-playing").forEach(a=>{try{a._audEl.pause();}catch(ex){}a.innerHTML="<span>▶</span>";a.classList.remove("audio-playing");});aud.play().catch(()=>{});audPlaying=true;apb.innerHTML="<span>⏸</span>";apb.classList.add("audio-playing");apb._audEl=aud;}});
+    wEl.addEventListener("click",e=>{e.stopPropagation();if(!aud.duration)return;const r=wEl.getBoundingClientRect();aud.currentTime=((e.clientX-r.left)/r.width)*aud.duration;});
+  }
+
+  if((d.videoUrl||d._localVid)&&!d.deleted){
+    const vw=document.createElement("div");vw.className="bbl-vid-wrap";const vidSrc=d.videoUrl||d._localVid||"";
+    const vth=document.createElement("div");vth.style.cssText="position:relative;cursor:pointer;";
+    const vid=document.createElement("video");vid.preload="metadata";vid.playsInline=true;vid.muted=true;vid.src=vidSrc;vid.style.cssText="width:100%;display:block;max-height:220px;object-fit:contain;background:#000;border-radius:14px 14px 0 0;pointer-events:none;";
+    vth.appendChild(vid);
+    const po=document.createElement("div");po.style.cssText="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;";
+    const pc=document.createElement("div");pc.style.cssText="width:52px;height:52px;border-radius:50%;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(2px);transition:transform .15s;";
+    pc.innerHTML='<span style="color:#fff;font-size:22px;margin-left:3px;">▶</span>';po.appendChild(pc);vth.appendChild(po);
+    vth.addEventListener("click",e=>{e.stopPropagation();if(vidSrc)openVidViewer(vidSrc);});
+    vth.addEventListener("mouseenter",()=>{pc.style.transform="scale(1.1)";});vth.addEventListener("mouseleave",()=>{pc.style.transform="";});
+    vw.appendChild(vth);
+    const ctrl=document.createElement("div");ctrl.className="vid-controls";
+    const mp=document.createElement("button");mp.className="vid-play-btn";mp.textContent="▶";mp.title="Fullscreen";
+    const pr=document.createElement("div");pr.className="vid-progress";const fi=document.createElement("div");fi.className="vid-progress-fill";pr.appendChild(fi);
+    const tEl2=document.createElement("span");tEl2.className="vid-time";tEl2.textContent="Tap to play";
+    const fb=document.createElement("button");fb.className="vid-mute-btn";fb.textContent="⛶";
+    ctrl.appendChild(mp);ctrl.appendChild(pr);ctrl.appendChild(tEl2);ctrl.appendChild(fb);vw.appendChild(ctrl);
+    const fmtV=s=>{if(!isFinite(s))return"0:00";const m=Math.floor(s/60),sec=Math.floor(s%60);return m+":"+(sec<10?"0":"")+sec;};
+    vid.addEventListener("loadedmetadata",()=>{tEl2.textContent=fmtV(vid.duration);},{once:true});
+    [mp,pr,fb].forEach(el=>el.addEventListener("click",e=>{e.stopPropagation();openVidViewer(vidSrc);}));
+    if(d._uploading){const pb=document.createElement("div");pb.className="img-upload-progress";const ba=document.createElement("div");ba.className="img-upload-bar";pb.appendChild(ba);vw.insertBefore(pb,ctrl);}
+    bbl.appendChild(vw);
+  }
+
+  if(d.text&&!d.deleted){const txtEl=document.createElement("span");txtEl.className="bbl-txt";txtEl.textContent=d.text;bbl.appendChild(txtEl);}
+  else if(d.deleted){const txtEl=document.createElement("span");txtEl.className="bbl-txt";txtEl.style.fontSize="13px";txtEl.textContent="🚫 Message deleted";bbl.appendChild(txtEl);}
+
+  const meta=document.createElement("div");meta.className="bbl-meta";
+  const tEl=document.createElement("span");tEl.className="bbl-time";tEl.textContent=new Date(ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});meta.appendChild(tEl);
+  if(isOut){const tick=document.createElement("span");tick.className="bbl-tick";tick.textContent="✓✓";meta.appendChild(tick);}
+  const edEl=document.createElement("span");edEl.className="bbl-edited";edEl.textContent="edited";edEl.style.display=d.edited&&!d.deleted?"inline":"none";meta.appendChild(edEl);
+  bbl.appendChild(meta);
+
+  // Buttons RIGHT of bubble for out, LEFT for in
+  if(isOut){row.appendChild(bbl);row.appendChild(rBtn);row.appendChild(repBtn);}
+  else{row.appendChild(bbl);row.appendChild(rBtn);row.appendChild(repBtn);}
+  group.appendChild(row);
+  const rxBar=document.createElement("div");rxBar.className="rx-bar";group.appendChild(rxBar);
+  chatBody.insertBefore(group,typingRow);
+  msgMap[key]={wrap:group,bbl,rxBar,data:d};
+
+  let lpTimer=null,lpFired=false,startX=0,startY=0,dragStartX=0,dragging=false;
+  bbl.addEventListener("touchstart",e=>{lpFired=false;dragging=false;startX=e.touches[0].clientX;startY=e.touches[0].clientY;dragStartX=startX;lpTimer=setTimeout(()=>{lpFired=true;navigator.vibrate&&navigator.vibrate(40);showCtx(key,d,startX,startY);},480);},{passive:true});
+  bbl.addEventListener("touchmove",e=>{const dx=e.touches[0].clientX-dragStartX,dy=Math.abs(e.touches[0].clientY-startY);if(Math.abs(dx)>8||dy>10)clearTimeout(lpTimer);const sdx=isOut?(dragStartX-e.touches[0].clientX):(e.touches[0].clientX-dragStartX);if(sdx>5&&dy<30&&!lpFired){dragging=true;const cl=Math.min(sdx,64);row.style.transform=isOut?`translateX(-${cl}px)`:`translateX(${cl}px)`;}},{passive:true});
+  bbl.addEventListener("touchend",e=>{clearTimeout(lpTimer);if(lpFired){e.preventDefault();return;}const dx=isOut?(dragStartX-e.changedTouches[0].clientX):(e.changedTouches[0].clientX-dragStartX);row.style.transform="";if(dragging&&dx>52){navigator.vibrate&&navigator.vibrate([10,30,10]);startReply(key,d);}dragging=false;});
+  bbl.addEventListener("contextmenu",e=>{e.preventDefault();e.stopPropagation();showCtx(key,d,e.clientX,e.clientY);});
+  bbl.addEventListener("mouseenter",()=>{rBtn.style.opacity="1";repBtn.style.opacity="1";});
+  bbl.addEventListener("mouseleave",()=>{rBtn.style.opacity="";repBtn.style.opacity="";});
 }
-function listenPresence(){
-  ["Aku","Billu"].forEach(u=>{
-    db.ref("akchat/online/"+u).on("value",snap=>{
-      const dot=u==="Aku"?dAku:dBillu;
-      dot.className="uc-dot"+(snap.val()?" on":"");
-      if(me&&u!==me){
-        otherStatus.className="av-status"+(snap.val()?" online":"");
-        if(snap.val()){
-          chatHeaderSub.textContent="Active now";
-        } else {
-          db.ref("akchat/lastSeen/"+u).once("value",lsSnap=>{
-            chatHeaderSub.textContent=fmtLastSeen(lsSnap.val());
-          });
-          db.ref("akchat/lastSeen/"+u).on("value",lsSnap=>{
-            if(!lsSnap.val())return;
-            chatHeaderSub.textContent=fmtLastSeen(lsSnap.val());
-          });
-        }
-      }
-    });
-  });
+
+function updateRxUI(key,rxData){
+  if(!msgMap[key])return;const{rxBar}=msgMap[key];rxBar.innerHTML="";
+  const totals={},mine=new Set();
+  Object.entries(rxData).forEach(([em,users])=>{const c=Object.keys(users).length;if(c>0){totals[em]=c;if(me&&users[me])mine.add(em);}});
+  Object.entries(totals).forEach(([em,cnt])=>{const chip=document.createElement("div");chip.className="rx-chip"+(mine.has(em)?" mine":"");chip.innerHTML=`<span class="rc">${em}</span><span class="rn">${cnt}</span>`;chip.addEventListener("click",e=>{e.stopPropagation();toggleReaction(key,em);});rxBar.appendChild(chip);});
 }
-listenPresence();
-window.addEventListener("beforeunload",()=>{setOnline(false);stopTyping();});
-window.addEventListener("pagehide",()=>{setOnline(false);stopTyping();});
+
+imgViewerClose.addEventListener("click",()=>imgViewer.classList.remove("on"));
+imgViewer.addEventListener("click",e=>{if(e.target===imgViewer)imgViewer.classList.remove("on");});
+const vidViewer=$("vidViewer"),vidViewerVid=$("vidViewerVid"),vidViewerClose=$("vidViewerClose"),vidViewerDl=$("vidViewerDl");
+function openVidViewer(src){vidViewerVid.src=src;vidViewerDl.href=src;vidViewer.classList.add("on");vidViewerVid.play().catch(()=>{});}
+function closeVidViewer(){vidViewer.classList.remove("on");vidViewerVid.pause();vidViewerVid.src="";}
+vidViewerClose.addEventListener("click",closeVidViewer);
+vidViewer.addEventListener("click",e=>{if(e.target===vidViewer)closeVidViewer();});
+
+function scrollBottom(){requestAnimationFrame(()=>{chatBody.scrollTop=chatBody.scrollHeight;});}
+if(window.visualViewport){window.visualViewport.addEventListener("resize",()=>{if(!chatOpen)return;chatPanel.style.bottom=(window.innerHeight-window.visualViewport.height)+"px";});}
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeModal();closePicker();closeCtx();hideMenuDim();imgViewer.classList.remove("on");closeVidViewer();vcHideOverlay();acHideOverlay();}});
 
 /* ═══════════════════════════════════════════
-   REPLY
+   VIDEO CALLING — PeerJS
 ═══════════════════════════════════════════ */
-function startReply(key,data){
-  replyTo={key,sender:data.sender,text:data.text||"",imgUrl:data.imgUrl||null,videoUrl:data.videoUrl||null};
-  rbName.textContent="↩ Replying to "+data.sender;
-  if(data.imgUrl){
-    rbTxt.textContent="📷 Photo";
-    rbThumb.src=data.imgUrl;rbThumb.style.display="block";
-  } else if(data.videoUrl){
-    rbTxt.textContent="🎥 Video";
-    rbThumb.style.display="none";
-  } else {
-    rbTxt.textContent=data.text||"";
-    rbThumb.style.display="none";
-  }
-  replyBar.classList.add("on");
-  chatInput.focus();
-  if(msgMap[key]){
-    const w=msgMap[key].wrap;
-    w.style.transition="background .3s";
-    w.style.background="rgba(128,0,32,.1)";
-    setTimeout(()=>{if(msgMap[key])msgMap[key].wrap.style.background="";},800);
-  }
+const VC_PEER_IDS={Aku:"akchat-aku-video-2026",Billu:"akchat-billu-video-2026"};
+let vcPeer=null,vcLocalStream=null,vcActiveCall=null,vcTimerInt=null,vcSeconds=0,vcMuted=false,vcCamOff=false;
+const vcOverlay=$("vcallOverlay"),vcIncoming=$("vcallIncoming"),vcActive=$("vcallActive"),vcCalling=$("vcallCalling");
+const vcRemoteVideo=$("vcRemoteVideo"),vcLocalVideo=$("vcLocalVideo");
+const vcIncomingAv=$("vcIncomingAv"),vcIncomingName=$("vcIncomingName");
+const vcCallingAv=$("vcCallingAv"),vcCallingName=$("vcCallingName"),vcCallingSub=$("vcCallingSub");
+const vcActiveName=$("vcActiveName"),vcTimerEl=$("vcTimer");
+const vcAnswerBtn=$("vcAnswerBtn"),vcDeclineBtn=$("vcDeclineBtn"),vcCancelBtn=$("vcCancelBtn");
+const vcEndBtn=$("vcEndBtn"),vcMuteBtn=$("vcMuteBtn"),vcCamBtn=$("vcCamBtn");
+const vcallBtn=$("vcallBtn");
+
+function vcShowScreen(w){vcIncoming.style.display="none";vcActive.style.display="none";vcCalling.style.display="none";if(w==="incoming")vcIncoming.style.display="flex";else if(w==="active"){vcActive.style.display="flex";}else if(w==="calling")vcCalling.style.display="flex";vcOverlay.classList.add("show");}
+function vcHideOverlay(){vcOverlay.classList.remove("show");clearInterval(vcTimerInt);if(vcActiveCall){try{vcActiveCall.close();}catch(e){}vcActiveCall=null;}if(vcLocalStream){vcLocalStream.getTracks().forEach(t=>t.stop());vcLocalStream=null;}if(vcLocalVideo)vcLocalVideo.srcObject=null;if(vcRemoteVideo)vcRemoteVideo.srcObject=null;vcallBtn.classList.remove("in-call");}
+async function vcGetMedia(){if(vcLocalStream)return vcLocalStream;vcLocalStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});return vcLocalStream;}
+function vcStartTimer(){vcSeconds=0;clearInterval(vcTimerInt);vcTimerInt=setInterval(()=>{vcSeconds++;vcTimerEl.textContent=fmtSecs(vcSeconds);},1000);}
+
+function handleIncomingVideoCall(call){
+  const caller=me==="Aku"?"Billu":"Aku";const c=USER_COLORS[caller];
+  vcIncomingAv.textContent=caller[0];vcIncomingAv.style.background=c.av;vcIncomingName.textContent=caller;vcShowScreen("incoming");
+  vcAnswerBtn.onclick=async()=>{
+    const s=await vcGetMedia().catch(()=>{showBanner("Camera/mic denied");vcHideOverlay();return null;});if(!s)return;
+    vcLocalVideo.srcObject=s;call.answer(s);vcActiveCall=call;vcActiveName.textContent=caller;
+    call.on("stream",rs=>{vcRemoteVideo.srcObject=rs;vcShowScreen("active");vcStartTimer();vcallBtn.classList.add("in-call");});
+    call.on("close",()=>{showBanner(caller+" ended the video call");vcHideOverlay();});
+  };
+  vcDeclineBtn.onclick=()=>{call.close();vcHideOverlay();};
 }
-function cancelReply(){
-  replyTo=null;replyBar.classList.remove("on");
-  rbName.textContent="";rbTxt.textContent="";rbThumb.style.display="none";
+
+function vcInitPeer(){
+  if(vcPeer)return;const pid=VC_PEER_IDS[me];
+  vcPeer=new Peer(pid,{debug:0});
+  vcPeer.on("error",err=>{if(err.type==="unavailable-id"){vcPeer=new Peer(pid+"_"+Date.now(),{debug:0});vcPeer.on("call",handleIncomingVideoCall);}});
+  vcPeer.on("open",()=>console.log("[VC] ready"));
+  vcPeer.on("call",handleIncomingVideoCall);
 }
-rbCancel.addEventListener("click",cancelReply);
+
+vcallBtn.addEventListener("click",async()=>{
+  if(!me){showBanner("Please login first");return;}
+  if(!vcPeer){showBanner("Call service initializing, please wait…");return;}
+  const other=me==="Aku"?"Billu":"Aku";const c=USER_COLORS[other];
+  vcCallingAv.textContent=other[0];vcCallingAv.style.background=c.av;vcCallingName.textContent=other;vcCallingSub.textContent="Ringing…";vcShowScreen("calling");
+  const s=await vcGetMedia().catch(()=>{showBanner("Camera/mic denied");vcHideOverlay();return null;});if(!s)return;
+  vcLocalVideo.srcObject=s;
+  const call=vcPeer.call(VC_PEER_IDS[other],s);if(!call){showBanner(other+" not available");vcHideOverlay();return;}
+  vcActiveCall=call;
+  call.on("stream",rs=>{vcRemoteVideo.srcObject=rs;vcActiveName.textContent=other;vcShowScreen("active");vcStartTimer();vcallBtn.classList.add("in-call");});
+  call.on("close",()=>{showBanner(other+" ended the call");vcHideOverlay();});
+  const t=setTimeout(()=>{if(vcOverlay.classList.contains("show")&&vcActive.style.display==="none"){showBanner(other+" didn't answer");vcHideOverlay();}},40000);
+  call.on("stream",()=>clearTimeout(t));call.on("close",()=>clearTimeout(t));
+});
+vcCancelBtn.onclick=()=>vcHideOverlay();
+vcEndBtn.onclick=()=>vcHideOverlay();
+vcMuteBtn.addEventListener("click",()=>{if(!vcLocalStream)return;vcMuted=!vcMuted;vcLocalStream.getAudioTracks().forEach(t=>t.enabled=!vcMuted);vcMuteBtn.textContent=vcMuted?"🔇":"🎙️";vcMuteBtn.classList.toggle("muted",vcMuted);});
+vcCamBtn.addEventListener("click",()=>{if(!vcLocalStream)return;vcCamOff=!vcCamOff;vcLocalStream.getVideoTracks().forEach(t=>t.enabled=!vcCamOff);vcCamBtn.textContent=vcCamOff?"🚫":"📷";vcCamBtn.classList.toggle("cam-off",vcCamOff);vcLocalVideo.style.opacity=vcCamOff?"0.3":"1";});
 
 /* ═══════════════════════════════════════════
-   SEND TEXT
+   VOICE CALLING — PeerJS (audio only)
 ═══════════════════════════════════════════ */
-function sendMessage(){
-  const text=chatInput.value.trim();
-  if(!me)return;
-  if(editKey){
-    if(!text)return;
-    db.ref("akchat/messages/"+editKey).update({text,edited:true})
-      .then(()=>{cancelEdit();hideBanner();})
-      .catch(e=>showBanner("Edit failed: "+e.code));
-    sendBtn.disabled=false;return;
-  }
-  if(!text)return;
-  sendBtn.disabled=true;
-  const payload={text,sender:me,ts:firebase.database.ServerValue.TIMESTAMP};
-  if(replyTo)payload.replyTo={key:replyTo.key,sender:replyTo.sender,text:replyTo.text,imgUrl:replyTo.imgUrl||null,videoUrl:replyTo.videoUrl||null};
-  db.ref("akchat/messages").push(payload)
-    .then(()=>{chatInput.value="";chatInput.style.height="auto";stopTyping();hideBanner();cancelReply();})
-    .catch(e=>showBanner("Send failed ("+e.code+"): Firebase → Realtime DB → Rules → read+write = true"))
-    .finally(()=>sendBtn.disabled=false);
-}
-sendBtn.addEventListener("click",sendMessage);
-chatInput.addEventListener("keydown",e=>{
-  if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();}
-});
-chatInput.addEventListener("input",()=>{
-  chatInput.style.height="auto";
-  chatInput.style.height=Math.min(chatInput.scrollHeight,100)+"px";
-  startTyping();
-});
+const AC_PEER_IDS={Aku:"akchat-aku-audio-2026",Billu:"akchat-billu-audio-2026"};
+let acPeer=null,acLocalStream=null,acActiveCall=null,acTimerInt=null,acSecs=0,acMuted=false;
+const acOverlay=$("acallOverlay"),acIncoming=$("acallIncoming"),acActiveScr=$("acallActive"),acCallingScr=$("acallCalling");
+const acIncomingAv=$("acIncomingAv"),acIncomingName=$("acIncomingName");
+const acCallingAv=$("acCallingAv"),acCallingName=$("acCallingName"),acCallingSub=$("acCallingSub");
+const acActiveAv=$("acActiveAv"),acActiveName=$("acActiveName"),acTimerEl=$("acTimer"),acWaveEl=$("acWave");
+const acAnswerBtn=$("acAnswerBtn"),acDeclineBtn=$("acDeclineBtn"),acCancelBtn=$("acCancelBtn");
+const acEndBtn=$("acEndBtn"),acMuteBtn=$("acMuteBtn"),acSpkBtn=$("acSpkBtn");
+const acallBtn=$("acallBtn");
+const acRemoteAudio=document.createElement("audio");acRemoteAudio.autoplay=true;document.body.appendChild(acRemoteAudio);
 
-/* ═══════════════════════════════════════════
-   SEND MEDIA via Cloudinary (image + video)
-═══════════════════════════════════════════ */
-const CLOUDINARY_URL="https://api.cloudinary.com/v1_1/dl1ishrkv/auto/upload";
-const CLOUDINARY_PRESET="ml_defaultdgfdf";
+function acShowScreen(w){acIncoming.style.display="none";acActiveScr.style.display="none";acCallingScr.style.display="none";if(w==="incoming")acIncoming.style.display="flex";else if(w==="active")acActiveScr.style.display="flex";else if(w==="calling")acCallingScr.style.display="flex";acOverlay.classList.add("show");}
+function acHideOverlay(){acOverlay.classList.remove("show");clearInterval(acTimerInt);if(acActiveCall){try{acActiveCall.close();}catch(e){}acActiveCall=null;}if(acLocalStream){acLocalStream.getTracks().forEach(t=>t.stop());acLocalStream=null;}acRemoteAudio.srcObject=null;acallBtn.classList.remove("in-call");acMuted=false;acMuteBtn.textContent="🎙️";acMuteBtn.classList.remove("muted");if(acWaveEl)acWaveEl.classList.add("idle");}
+async function acGetMic(){if(acLocalStream)return acLocalStream;acLocalStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});return acLocalStream;}
+function acStartTimer(){acSecs=0;clearInterval(acTimerInt);acTimerInt=setInterval(()=>{acSecs++;acTimerEl.textContent=fmtSecs(acSecs);},1000);}
 
-imgBtn.addEventListener("click",()=>{
-  if(!me){alert("Please login first");return;}
-  imgFileInput.click();
-});
-
-imgFileInput.addEventListener("change",async e=>{
-  const file=e.target.files[0];
-  if(!file)return;
-  imgFileInput.value="";
-  if(!me)return;
-
-  const isVideo=file.type.startsWith("video/");
-  const localUrl=URL.createObjectURL(file);
-  const tempKey="temp_"+Date.now();
-  const savedReply=replyTo?{...replyTo}:null;
-
-  // Show local preview immediately
-  renderMsg(tempKey,{
-    sender:me,ts:Date.now(),text:"",
-    _localImg:isVideo?null:localUrl,
-    _localVid:isVideo?localUrl:null,
-    _uploading:true,replyTo:savedReply
-  });
-  cancelReply();
-  scrollBottom();
-
-  uploadOverlay.classList.add("show");
-  uploadPct.textContent="Uploading… 0%";
-
-  try{
-    let blob=file;
-    if(!isVideo&&file.size>800_000) blob=await compressImage(file,1200,0.82);
-
-    const fd=new FormData();
-    fd.append("upload_preset",CLOUDINARY_PRESET);
-    fd.append("file",blob,file.name);
-
-    const mediaUrl=await new Promise((res,rej)=>{
-      const xhr=new XMLHttpRequest();
-      xhr.open("POST",CLOUDINARY_URL);
-      xhr.upload.onprogress=ev=>{
-        if(ev.lengthComputable){
-          const pct=Math.round(ev.loaded/ev.total*100);
-          uploadPct.textContent="Uploading… "+pct+"%";
-          const bar=msgMap[tempKey]?.wrap.querySelector(".img-upload-bar");
-          if(bar)bar.style.width=pct+"%";
-        }
-      };
-      xhr.onload=()=>{
-        try{
-          const data=JSON.parse(xhr.responseText);
-          if(data.secure_url)res(data.secure_url);
-          else rej(new Error("Cloudinary error: "+xhr.responseText));
-        }catch(ex){rej(ex);}
-      };
-      xhr.onerror=()=>rej(new Error("Network error"));
-      xhr.send(fd);
-    });
-
-    if(msgMap[tempKey]){msgMap[tempKey].wrap.remove();delete msgMap[tempKey];}
-    URL.revokeObjectURL(localUrl);
-    uploadOverlay.classList.remove("show");
-
-    const payload={text:"",sender:me,ts:firebase.database.ServerValue.TIMESTAMP};
-    if(isVideo) payload.videoUrl=mediaUrl;
-    else payload.imgUrl=mediaUrl;
-    if(savedReply)payload.replyTo=savedReply;
-    await db.ref("akchat/messages").push(payload);
-    hideBanner();
-
-  }catch(err){
-    console.error(err);
-    if(msgMap[tempKey]){msgMap[tempKey].wrap.remove();delete msgMap[tempKey];}
-    uploadOverlay.classList.remove("show");
-    showBanner("Upload failed: "+err.message);
-  }
-});
-
-async function compressImage(file,maxW,quality){
-  return new Promise(res=>{
-    const img=new Image();
-    img.onload=()=>{
-      let w=img.width,h=img.height;
-      if(w>maxW){h=Math.round(h*maxW/w);w=maxW;}
-      const c=document.createElement("canvas");
-      c.width=w;c.height=h;
-      c.getContext("2d").drawImage(img,0,0,w,h);
-      c.toBlob(b=>res(b),"image/jpeg",quality);
-    };
-    img.src=URL.createObjectURL(file);
-  });
+function handleIncomingAudioCall(call){
+  const caller=me==="Aku"?"Billu":"Aku";const c=USER_COLORS[caller];
+  acIncomingAv.textContent=caller[0];acIncomingAv.style.background=c.av;acIncomingName.textContent=caller;acShowScreen("incoming");
+  acAnswerBtn.onclick=async()=>{
+    const s=await acGetMic().catch(()=>{showBanner("Mic denied");acHideOverlay();return null;});if(!s)return;
+    call.answer(s);acActiveCall=call;
+    acActiveAv.textContent=caller[0];acActiveAv.style.background=c.av;acActiveName.textContent=caller;
+    call.on("stream",rs=>{acRemoteAudio.srcObject=rs;if(acWaveEl)acWaveEl.classList.remove("idle");acShowScreen("active");acStartTimer();acallBtn.classList.add("in-call");});
+    call.on("close",()=>{showBanner(caller+" ended the voice call");acHideOverlay();});
+  };
+  acDeclineBtn.onclick=()=>{call.close();acHideOverlay();};
 }
 
-/* ═══════════════════════════════════════════
-   TYPING
-═══════════════════════════════════════════ */
-function startTyping(){
-  if(!me)return;
-  db.ref("akchat/typing/"+me).set(true).catch(()=>{});
-  clearTimeout(typingTimer);
-  typingTimer=setTimeout(stopTyping,2500);
+function acInitPeer(){
+  if(acPeer)return;const pid=AC_PEER_IDS[me];
+  acPeer=new Peer(pid,{debug:0});
+  acPeer.on("error",err=>{if(err.type==="unavailable-id"){acPeer=new Peer(pid+"_"+Date.now(),{debug:0});acPeer.on("call",handleIncomingAudioCall);}});
+  acPeer.on("open",()=>console.log("[AC] ready"));
+  acPeer.on("call",handleIncomingAudioCall);
+}
+
+acallBtn.addEventListener("click",async()=>{
+  if(!me){showBanner("Please login first");return;}
+  if(!acPeer){showBanner("Call service initializing, please wait…");return;}
+  const other=me==="Aku"?"Billu":"Aku";const c=USER_COLORS[other];
+  acCallingAv.textContent=other[0];acCallingAv.style.background=c.av;acCallingName.textContent=other;acCallingSub.textContent="Ringing…";acShowScreen("calling");
+  const s=await acGetMic().catch(()=>{showBanner("Mic denied");acHideOverlay();return null;});if(!s)return;
+  const call=acPeer.call(AC_PEER_IDS[other],s);if(!call){showBanner(other+" not available");acHideOverlay();return;}
+  acActiveCall=call;
+  call.on("stream",rs=>{acRemoteAudio.srcObject=rs;if(acWaveEl)acWaveEl.classList.remove("idle");acActiveAv.textContent=other[0];acActiveAv.style.background=c.av;acActiveName.textContent=other;acShowScreen("active");acStartTimer();acallBtn.classList.add("in-call");});
+  call.on("close",()=>{showBanner(other+" ended the call");acHideOverlay();});
+  const t=setTimeout(()=>{if(acOverlay.classList.contains("show")&&acActiveScr.style.display==="none"){showBanner(other+" didn't answer");acHideOverlay();}},40000);
+  call.on("stream",()=>clearTimeout(t));call.on("close",()=>clearTimeout(t));
+});
+acCancelBtn.onclick=()=>acHideOverlay();
+acEndBtn.onclick=()=>acHideOverlay();
+acMuteBtn.addEventListener("click",()=>{if(!acLocalStream)return;acMuted=!acMuted;acLocalStream.getAudioTracks().forEach(t=>t.enabled=!acMuted);acMuteBtn.textContent=acMuted?"🔇":"🎙️";acMuteBtn.classList.toggle("muted",acMuted);});
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
