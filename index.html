@@ -123,7 +123,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sa
 .chat-back-btn{background:none;border:none;cursor:pointer;font-size:22px;padding:2px 6px 2px 0;color:#fff;line-height:1;display:none;}
 @media(max-width:600px){.chat-back-btn{display:block;}}
 .chat-av-wrap{position:relative;flex-shrink:0;cursor:pointer;}
-.chat-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:900;border:2px solid rgba(255,255,255,.25);}
+.chat-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:900;border:2px solid rgba(255,255,255,.25);overflow:hidden;position:relative;}
 .av-status{position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;border:2px solid #1a1a2e;background:#d1d5db;}
 .av-status.online{background:#22c55e;}
 .chat-header-info{flex:1;min-width:0;cursor:pointer;}
@@ -322,6 +322,45 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sa
 .ac-bar:nth-child(1){animation-delay:0s;height:20px;}.ac-bar:nth-child(2){animation-delay:.1s;height:35px;}.ac-bar:nth-child(3){animation-delay:.2s;height:50px;}.ac-bar:nth-child(4){animation-delay:.3s;height:30px;}.ac-bar:nth-child(5){animation-delay:.4s;height:45px;}.ac-bar:nth-child(6){animation-delay:.3s;height:30px;}.ac-bar:nth-child(7){animation-delay:.2s;height:50px;}.ac-bar:nth-child(8){animation-delay:.1s;height:35px;}.ac-bar:nth-child(9){animation-delay:0s;height:20px;}
 @keyframes acWave{0%,100%{transform:scaleY(.4);opacity:.5;}50%{transform:scaleY(1);opacity:1;}}
 .ac-wave.idle .ac-bar{animation:none;transform:scaleY(.3);opacity:.4;}
+/* AVATAR / PROFILE PICTURE */
+.chat-av-wrap.clickable{cursor:pointer;}
+.chat-av img,.rp-av-preview img,.seen-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.seen-av{overflow:hidden;}
+.av-cam-badge{position:absolute;bottom:-2px;right:-2px;width:18px;height:18px;border-radius:50%;background:#800020;border:2px solid #1a1a2e;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;}
+.avatar-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9300;align-items:center;justify-content:center;padding:16px;}
+.avatar-modal-overlay.active{display:flex;}
+.avatar-modal{background:#fff;border-radius:18px;padding:20px;width:100%;max-width:420px;text-align:center;animation:slideUp .25s ease;}
+.avatar-modal h3{font-size:17px;font-weight:700;margin-bottom:4px;}
+.avatar-modal p{font-size:12px;color:#888;margin-bottom:14px;}
+.avatar-pick-row{display:flex;gap:10px;margin-bottom:6px;}
+.avatar-pick-btn{flex:1;background:#f5f5f5;border:1.5px dashed #ccc;border-radius:12px;padding:22px 10px;font-size:13px;font-weight:600;color:#555;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.avatar-pick-btn:hover{background:#f0e8ea;border-color:#800020;color:#800020;}
+.avatar-pick-btn span.ico{font-size:26px;}
+#avatarFileInput,#avatarCameraInput{display:none;}
+/* Cropper */
+.crop-stage{position:relative;width:100%;aspect-ratio:1/1;max-height:60vh;background:#111;border-radius:14px;overflow:hidden;touch-action:none;margin-bottom:14px;}
+.crop-canvas-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:grab;}
+.crop-canvas-wrap:active{cursor:grabbing;}
+.crop-canvas-wrap img{position:absolute;left:50%;top:50%;max-width:none;user-select:none;-webkit-user-drag:none;pointer-events:none;}
+.crop-circle-mask{position:absolute;inset:0;pointer-events:none;background:
+  radial-gradient(circle at center, transparent 0, transparent calc(50% - 1px), rgba(0,0,0,.55) calc(50% - 1px));
+}
+.crop-circle-ring{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);border:2px solid rgba(255,255,255,.85);border-radius:50%;pointer-events:none;box-shadow:0 0 0 2000px rgba(0,0,0,.001);}
+.crop-controls{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+.crop-slider-row{display:flex;align-items:center;gap:10px;}
+.crop-slider-row span{font-size:16px;width:22px;flex-shrink:0;}
+.crop-slider-row input[type=range]{flex:1;accent-color:#800020;height:4px;}
+.crop-rotate-row{display:flex;gap:8px;justify-content:center;}
+.crop-rot-btn{background:#f0f0f0;border:none;border-radius:10px;padding:9px 16px;font-size:16px;cursor:pointer;color:#333;transition:background .15s;}
+.crop-rot-btn:hover{background:#e4e4e4;}
+.avatar-modal-actions{display:flex;gap:10px;}
+.avatar-cancel-btn{flex:1;background:#f0f0f0;color:#555;border:none;padding:12px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;}
+.avatar-save-btn{flex:1;background:linear-gradient(135deg,#800020,#c0002a);color:#fff;border:none;padding:12px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
+.avatar-save-btn:disabled{opacity:.55;cursor:not-allowed;}
+.avatar-back-link{background:none;border:none;color:#800020;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:10px;display:inline-flex;align-items:center;gap:4px;}
+.avatar-remove-link{background:none;border:none;color:#e44d36;font-size:12px;font-weight:700;cursor:pointer;margin-top:10px;}
+.av-spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:avspin .7s linear infinite;}
+@keyframes avspin{to{transform:rotate(360deg);}}
 @media(max-width:600px){.browser-bar,.right-panel{display:none;}.sidebar{display:none;}.shopify-search{max-width:130px;}.order-actions .btn:nth-child(n+3){display:none;}.content{padding:10px;}}
 @media(max-width:900px){.sidebar{width:44px;}.sidebar-item>span:not(.sidebar-badge){display:none;}.sidebar-sub{display:none;}}
 @media(max-width:900px) and (min-width:601px){.right-panel{display:none;}.chat-panel{width:380px;}}
@@ -452,6 +491,54 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sa
   </div>
 </div>
 
+<!-- AVATAR / PROFILE PICTURE MODAL -->
+<div class="avatar-modal-overlay" id="avatarModal">
+  <div class="avatar-modal">
+    <!-- Step 1: pick -->
+    <div id="avatarPickStep">
+      <h3>Profile Picture</h3>
+      <p>Choose a photo to use as your profile picture</p>
+      <div class="avatar-pick-row">
+        <button class="avatar-pick-btn" id="avatarPickGallery"><span class="ico">🖼️</span>Choose photo</button>
+        <button class="avatar-pick-btn" id="avatarPickCamera"><span class="ico">📸</span>Take photo</button>
+      </div>
+      <input type="file" id="avatarFileInput" accept="image/*"/>
+      <input type="file" id="avatarCameraInput" accept="image/*" capture="user"/>
+      <button class="avatar-remove-link" id="avatarRemoveBtn">🗑️ Remove current picture</button>
+      <div class="avatar-modal-actions" style="margin-top:16px;">
+        <button class="avatar-cancel-btn" id="avatarPickCancel">Cancel</button>
+      </div>
+    </div>
+    <!-- Step 2: crop / rotate -->
+    <div id="avatarCropStep" style="display:none;">
+      <button class="avatar-back-link" id="avatarBackBtn">‹ Back</button>
+      <h3>Adjust Photo</h3>
+      <p>Drag to reposition · pinch or use slider to zoom</p>
+      <div class="crop-stage" id="cropStage">
+        <div class="crop-canvas-wrap" id="cropCanvasWrap">
+          <img id="cropImg" src="" alt=""/>
+        </div>
+        <div class="crop-circle-mask"></div>
+      </div>
+      <div class="crop-controls">
+        <div class="crop-slider-row">
+          <span>🔍</span>
+          <input type="range" id="cropZoom" min="100" max="300" value="100"/>
+        </div>
+        <div class="crop-rotate-row">
+          <button class="crop-rot-btn" id="cropRotLeft" title="Rotate left">↺ Rotate</button>
+          <button class="crop-rot-btn" id="cropRotRight" title="Rotate right">↻ Rotate</button>
+          <button class="crop-rot-btn" id="cropReset" title="Reset">⟲ Reset</button>
+        </div>
+      </div>
+      <div class="avatar-modal-actions">
+        <button class="avatar-cancel-btn" id="avatarCropCancel">Cancel</button>
+        <button class="avatar-save-btn" id="avatarSaveBtn"><span id="avatarSaveBtnTxt">Save ✓</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="chat-backdrop" id="chatBackdrop"></div>
 
 <!-- CHAT PANEL -->
@@ -461,6 +548,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sa
     <div class="chat-av-wrap" id="headerAvWrap">
       <div class="chat-av" id="chatAv">💬</div>
       <div class="av-status" id="otherStatus"></div>
+    </div>
+    <div class="chat-av-wrap clickable" id="myAvWrap" title="Change my profile picture" style="margin-left:2px;">
+      <div class="chat-av" id="myAv" style="width:34px;height:34px;font-size:12px;">🙂</div>
+      <div class="av-cam-badge">📷</div>
     </div>
     <div class="chat-header-info" id="headerInfo">
       <div class="chat-header-name" id="chatHeaderName">AKChat <span class="edit-nick-ico">✏️</span></div>
@@ -509,7 +600,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sa
       <div class="footer-left">
         <button class="emoji-btn" id="emojiBtn">😊</button>
         <button class="img-btn" id="imgBtn">📷</button>
-        <input type="file" id="imgFileInput" accept="image/*,video/*"/>
+        <input type="file" id="imgFileInput" accept="image/*,video/*" multiple/>
         <button class="mic-btn" id="micBtn">🎤</button>
       </div>
       <textarea class="chat-input" id="chatInput" rows="1" placeholder="Message…"></textarea>
@@ -549,6 +640,8 @@ const EMOJIS_PANEL=["😀","😁","😂","🤣","😃","😄","😅","😆","�
 let me=null,chatOpen=false,listening=false,typingTimer=null,firstLoad=true,editKey=null,unread=0,replyTo=null,msgMap={},lastDate="";
 let mediaRecorder=null,audioChunks=[],isRecording=false,recTimerInterval=null,recSeconds=0;
 let nicknames={Aku:"Aku",Billu:"Billu"};
+let avatars={Aku:null,Billu:null};
+let codesReady=false;
 
 const $=id=>document.getElementById(id);
 const modal=$("modal"),codeInput=$("codeInput"),loginBtn=$("loginBtn"),modalError=$("modalError");
@@ -574,6 +667,13 @@ const labelAku=$("labelAku"),labelBillu=$("labelBillu");
 const chcodeModal=$("chcodeModal"),chcodeOld=$("chcodeOld"),chcodeNew=$("chcodeNew"),chcodeConfirm=$("chcodeConfirm");
 const chcodeError=$("chcodeError"),chcodeSaveBtn=$("chcodeSaveBtn"),chcodeCancelBtn=$("chcodeCancelBtn"),chcodeWho=$("chcodeWho");
 const bgCanvas=$("bgCanvas");
+const myAvWrap=$("myAvWrap"),myAv=$("myAv");
+const avatarModal=$("avatarModal"),avatarPickStep=$("avatarPickStep"),avatarCropStep=$("avatarCropStep");
+const avatarPickGallery=$("avatarPickGallery"),avatarPickCamera=$("avatarPickCamera"),avatarFileInput=$("avatarFileInput"),avatarCameraInput=$("avatarCameraInput");
+const avatarRemoveBtn=$("avatarRemoveBtn"),avatarPickCancel=$("avatarPickCancel"),avatarBackBtn=$("avatarBackBtn");
+const cropStage=$("cropStage"),cropCanvasWrap=$("cropCanvasWrap"),cropImg=$("cropImg"),cropZoom=$("cropZoom");
+const cropRotLeft=$("cropRotLeft"),cropRotRight=$("cropRotRight"),cropReset=$("cropReset");
+const avatarCropCancel=$("avatarCropCancel"),avatarSaveBtn=$("avatarSaveBtn"),avatarSaveBtnTxt=$("avatarSaveBtnTxt");
 
 function showBanner(m){dbBanner.textContent=m;dbBanner.classList.add("show");}
 function hideBanner(){dbBanner.classList.remove("show");}
@@ -628,21 +728,35 @@ function fmtSecs(s){const m=Math.floor(s/60),sec=s%60;return m+":"+(sec<10?"0":"
   new ResizeObserver(()=>{resize();initShapes();}).observe(chatBody);
 })();
 
-/* ══ FIREBASE CODES (stored in DB) ══ */
+/* ══ FIREBASE CODES (stored in DB, kept live via listener) ══ */
 // Fallback codes if not in DB yet
 let validCodes={"2006":"Aku","2008":"Billu"};
 
-function loadCodes(){
-  return db.ref("akchat/codes").once("value").then(snap=>{
+function listenCodes(){
+  db.ref("akchat/codes").on("value",snap=>{
     const d=snap.val();
-    if(d){
+    if(d&&Object.keys(d).length){
       validCodes={};
-      Object.entries(d).forEach(([user,code])=>{validCodes[code]=user;});
-    } else {
-      // Seed default codes into Firebase
-      db.ref("akchat/codes").set({Aku:"2006",Billu:"2008"}).catch(()=>{});
+      Object.entries(d).forEach(([user,code])=>{validCodes[String(code)]=user;});
     }
+    codesReady=true;
+  },err=>{
+    codesReady=true; // fall back to default codes if DB read is blocked
+    showBanner("⚠️ Firebase codes blocked ("+err.code+"): using default codes. Fix Realtime DB → Rules → read/write = true");
+  });
+  // Seed default codes if missing (only if we can write)
+  db.ref("akchat/codes").once("value").then(snap=>{
+    if(!snap.val())db.ref("akchat/codes").set({Aku:"2006",Billu:"2008"}).catch(()=>{});
   }).catch(()=>{});
+}
+listenCodes();
+
+function waitForCodes(){
+  if(codesReady)return Promise.resolve();
+  return new Promise(res=>{
+    const iv=setInterval(()=>{if(codesReady){clearInterval(iv);res();}},50);
+    setTimeout(()=>{clearInterval(iv);res();},3000); // don't hang forever
+  });
 }
 
 /* ══ CHANGE CODE MODAL ══ */
@@ -662,20 +776,39 @@ async function saveNewCode(){
   chcodeError.style.display="none";
   if(!/^\d{4}$/.test(newVal)){chcodeError.textContent="New code must be exactly 4 digits.";chcodeError.style.display="block";return;}
   if(newVal!==confVal){chcodeError.textContent="New codes don't match.";chcodeError.style.display="block";return;}
-  // Verify old code from Firebase
-  const snap=await db.ref("akchat/codes/"+me).once("value").catch(()=>null);
-  const currentCode=snap?snap.val():"";
-  if(oldVal!==currentCode){chcodeError.textContent="Current code is incorrect.";chcodeError.style.display="block";return;}
-  // Check new code not already used
-  const allSnap=await db.ref("akchat/codes").once("value").catch(()=>null);
-  if(allSnap){
-    const all=allSnap.val()||{};
-    const taken=Object.entries(all).find(([u,c])=>c===newVal&&u!==me);
-    if(taken){chcodeError.textContent="That code is already in use.";chcodeError.style.display="block";return;}
+  // Verify old code from Firebase (fall back to in-memory validCodes if read fails)
+  let currentCode=validCodes && Object.entries(validCodes).find(([c,u])=>u===me)?.[0];
+  try{
+    const snap=await db.ref("akchat/codes/"+me).once("value");
+    if(snap.exists())currentCode=String(snap.val());
+  }catch(e){
+    chcodeError.textContent="Couldn't read current code from Firebase: "+e.code+". Check Realtime DB rules.";
+    chcodeError.style.display="block";
+    return;
   }
-  await db.ref("akchat/codes/"+me).set(newVal).catch(e=>{chcodeError.textContent="Error: "+e.message;chcodeError.style.display="block";return;});
-  // Reload valid codes
-  await loadCodes();
+  if(oldVal!==currentCode){chcodeError.textContent="Current code is incorrect.";chcodeError.style.display="block";return;}
+  // Check new code not already used by the other user
+  try{
+    const allSnap=await db.ref("akchat/codes").once("value");
+    const all=allSnap.val()||{};
+    const taken=Object.entries(all).find(([u,c])=>String(c)===newVal&&u!==me);
+    if(taken){chcodeError.textContent="That code is already in use.";chcodeError.style.display="block";return;}
+  }catch(e){
+    chcodeError.textContent="Couldn't verify codes: "+e.code+". Check Realtime DB rules.";
+    chcodeError.style.display="block";
+    return;
+  }
+  // Actually write the new code — abort on failure instead of pretending success
+  try{
+    await db.ref("akchat/codes/"+me).set(newVal);
+  }catch(e){
+    chcodeError.textContent="Save failed: "+e.code+". Check Realtime DB → Rules → write=true.";
+    chcodeError.style.display="block";
+    return;
+  }
+  // Update local cache immediately (listener will also refresh it)
+  Object.keys(validCodes).forEach(c=>{if(validCodes[c]===me)delete validCodes[c];});
+  validCodes[newVal]=me;
   closeChcodeModal();
   showBanner("✅ Code changed! New code: "+newVal);
   setTimeout(hideBanner,4000);
@@ -705,6 +838,206 @@ function listenNicknames(){
     const d=snap.val()||{};nicknames.Aku=d.Aku||"Aku";nicknames.Billu=d.Billu||"Billu";applyNicknames();
   });
 }
+
+/* ══ AVATAR / PROFILE PICTURE ══ */
+function renderAvEl(el,user){
+  const c=USER_COLORS[user];const url=avatars[user];
+  if(url){el.innerHTML=`<img src="${url}" alt="${user}"/>`;el.style.background=c.av;}
+  else{el.innerHTML="";el.textContent=user[0];el.style.background=c.av;}
+}
+function applyAvatars(){
+  if(me){
+    const other=me==="Aku"?"Billu":"Aku";
+    renderAvEl(chatAv,other);
+    renderAvEl(myAv,me);
+  }
+  document.querySelectorAll(".seen-av[data-user]").forEach(el=>{
+    const u=el.dataset.user;if(!u)return;
+    const url=avatars[u];
+    if(url)el.innerHTML=`<img src="${url}" alt="${u}"/>`;
+  });
+}
+function listenAvatars(){
+  db.ref("akchat/avatars").on("value",snap=>{
+    const d=snap.val()||{};avatars.Aku=d.Aku||null;avatars.Billu=d.Billu||null;applyAvatars();
+  });
+}
+
+/* ══ AVATAR MODAL: pick → crop/rotate → save ══ */
+let cropState={scale:1,baseScale:1,rot:0,offX:0,offY:0,imgW:0,imgH:0,naturalW:0,naturalH:0};
+let cropDrag=null; // {startX,startY,startOffX,startOffY} or pinch state
+const CROP_STAGE_SIZE=300; // logical square size used for math; actual element is responsive via CSS but stage box is square
+
+function openAvatarModal(){
+  if(!me)return;
+  avatarPickStep.style.display="";avatarCropStep.style.display="none";
+  avatarModal.classList.add("active");
+}
+function closeAvatarModal(){avatarModal.classList.remove("active");}
+myAvWrap.addEventListener("click",openAvatarModal);
+avatarPickCancel.addEventListener("click",closeAvatarModal);
+avatarModal.addEventListener("click",e=>{if(e.target===avatarModal)closeAvatarModal();});
+
+avatarPickGallery.addEventListener("click",()=>avatarFileInput.click());
+avatarPickCamera.addEventListener("click",()=>avatarCameraInput.click());
+
+function handleAvatarFile(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    cropImg.onload=()=>{
+      initCropState();
+      avatarPickStep.style.display="none";avatarCropStep.style.display="";
+    };
+    cropImg.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+avatarFileInput.addEventListener("change",e=>{handleAvatarFile(e.target.files[0]);avatarFileInput.value="";});
+avatarCameraInput.addEventListener("change",e=>{handleAvatarFile(e.target.files[0]);avatarCameraInput.value="";});
+
+avatarBackBtn.addEventListener("click",()=>{avatarCropStep.style.display="none";avatarPickStep.style.display="";});
+avatarCropCancel.addEventListener("click",closeAvatarModal);
+
+function stageBox(){
+  const r=cropStage.getBoundingClientRect();
+  return {w:r.width,h:r.height};
+}
+
+function initCropState(){
+  cropState.rot=0;cropState.offX=0;cropState.offY=0;
+  cropZoom.value=100;
+  cropState.naturalW=cropImg.naturalWidth;cropState.naturalH=cropImg.naturalHeight;
+  applyCropTransform();
+}
+
+function applyCropTransform(){
+  const {w:sw,h:sh}=stageBox();
+  const stageSize=Math.min(sw,sh)||CROP_STAGE_SIZE;
+  const rad=cropState.rot*Math.PI/180;
+  const rotatedW=Math.abs(cropState.naturalW*Math.cos(rad))+Math.abs(cropState.naturalH*Math.sin(rad));
+  const rotatedH=Math.abs(cropState.naturalW*Math.sin(rad))+Math.abs(cropState.naturalH*Math.cos(rad));
+  // base scale = smallest scale so the rotated image fully covers the circular stage
+  const baseScale=stageSize/Math.min(rotatedW,rotatedH);
+  cropState.baseScale=baseScale;
+  const zoomMult=(parseFloat(cropZoom.value)||100)/100;
+  const finalScale=baseScale*zoomMult;
+  cropState.scale=finalScale;
+
+  // clamp offsets so the image never leaves the visible circle
+  const dispW=cropState.naturalW*finalScale,dispH=cropState.naturalH*finalScale;
+  const rotDispW=Math.abs(dispW*Math.cos(rad))+Math.abs(dispH*Math.sin(rad));
+  const rotDispH=Math.abs(dispW*Math.sin(rad))+Math.abs(dispH*Math.cos(rad));
+  const maxOffX=Math.max(0,(rotDispW-stageSize)/2);
+  const maxOffY=Math.max(0,(rotDispH-stageSize)/2);
+  cropState.offX=Math.max(-maxOffX,Math.min(maxOffX,cropState.offX));
+  cropState.offY=Math.max(-maxOffY,Math.min(maxOffY,cropState.offY));
+
+  cropImg.style.width=cropState.naturalW+"px";
+  cropImg.style.height=cropState.naturalH+"px";
+  cropImg.style.marginLeft=(-cropState.naturalW/2)+"px";
+  cropImg.style.marginTop=(-cropState.naturalH/2)+"px";
+  cropImg.style.transform=`translate(${cropState.offX}px,${cropState.offY}px) rotate(${cropState.rot}deg) scale(${finalScale})`;
+}
+
+cropZoom.addEventListener("input",applyCropTransform);
+cropRotLeft.addEventListener("click",()=>{cropState.rot=(cropState.rot-90+360)%360;applyCropTransform();});
+cropRotRight.addEventListener("click",()=>{cropState.rot=(cropState.rot+90)%360;applyCropTransform();});
+cropReset.addEventListener("click",()=>{cropState.rot=0;cropState.offX=0;cropState.offY=0;cropZoom.value=100;applyCropTransform();});
+new ResizeObserver(()=>applyCropTransform()).observe(cropStage);
+
+/* Drag to reposition */
+cropCanvasWrap.addEventListener("pointerdown",e=>{
+  cropCanvasWrap.setPointerCapture(e.pointerId);
+  cropDrag={startX:e.clientX,startY:e.clientY,startOffX:cropState.offX,startOffY:cropState.offY};
+});
+cropCanvasWrap.addEventListener("pointermove",e=>{
+  if(!cropDrag)return;
+  cropState.offX=cropDrag.startOffX+(e.clientX-cropDrag.startX);
+  cropState.offY=cropDrag.startOffY+(e.clientY-cropDrag.startY);
+  applyCropTransform();
+});
+function endCropDrag(e){cropDrag=null;try{cropCanvasWrap.releasePointerCapture(e.pointerId);}catch(ex){}}
+cropCanvasWrap.addEventListener("pointerup",endCropDrag);
+cropCanvasWrap.addEventListener("pointercancel",endCropDrag);
+
+/* Pinch to zoom (touch) */
+let pinchStartDist=null,pinchStartZoom=100;
+cropCanvasWrap.addEventListener("touchstart",e=>{
+  if(e.touches.length===2){
+    cropDrag=null;
+    const dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY;
+    pinchStartDist=Math.hypot(dx,dy);pinchStartZoom=parseFloat(cropZoom.value)||100;
+  }
+},{passive:true});
+cropCanvasWrap.addEventListener("touchmove",e=>{
+  if(e.touches.length===2&&pinchStartDist){
+    const dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY;
+    const dist=Math.hypot(dx,dy);
+    let newZoom=pinchStartZoom*(dist/pinchStartDist);
+    newZoom=Math.max(100,Math.min(300,newZoom));
+    cropZoom.value=newZoom;applyCropTransform();
+  }
+},{passive:true});
+cropCanvasWrap.addEventListener("touchend",e=>{if(e.touches.length<2)pinchStartDist=null;});
+
+/* Render the cropped circle to a canvas → blob, upload to Cloudinary, save URL to Firebase */
+function renderCroppedAvatarBlob(){
+  return new Promise(resolve=>{
+    const OUT=512; // output px
+    const canvas=document.createElement("canvas");
+    canvas.width=OUT;canvas.height=OUT;
+    const ctx=canvas.getContext("2d");
+    // circular clip
+    ctx.save();
+    ctx.beginPath();ctx.arc(OUT/2,OUT/2,OUT/2,0,Math.PI*2);ctx.closePath();ctx.clip();
+    ctx.fillStyle="#fff";ctx.fillRect(0,0,OUT,OUT);
+
+    const {w:sw,h:sh}=stageBox();
+    const stageSize=Math.min(sw,sh)||CROP_STAGE_SIZE;
+    const ratio=OUT/stageSize;
+
+    ctx.translate(OUT/2,OUT/2);
+    ctx.translate(cropState.offX*ratio,cropState.offY*ratio);
+    ctx.rotate(cropState.rot*Math.PI/180);
+    ctx.scale(cropState.scale*ratio,cropState.scale*ratio);
+    ctx.drawImage(cropImg,-cropState.naturalW/2,-cropState.naturalH/2,cropState.naturalW,cropState.naturalH);
+    ctx.restore();
+
+    canvas.toBlob(blob=>resolve(blob),"image/jpeg",0.92);
+  });
+}
+
+avatarSaveBtn.addEventListener("click",async()=>{
+  if(!me)return;
+  avatarSaveBtn.disabled=true;avatarSaveBtnTxt.innerHTML='<span class="av-spinner"></span> Saving…';
+  try{
+    const blob=await renderCroppedAvatarBlob();
+    const fd=new FormData();fd.append("upload_preset",CLOUDINARY_PRESET);fd.append("file",blob,"avatar.jpg");
+    const resp=await fetch(CLOUDINARY_URL,{method:"POST",body:fd});
+    const data=await resp.json();
+    if(!data.secure_url)throw new Error(data.error?.message||"Upload failed");
+    await db.ref("akchat/avatars/"+me).set(data.secure_url);
+    avatars[me]=data.secure_url;applyAvatars();
+    closeAvatarModal();
+    showBanner("✅ Profile picture updated");setTimeout(hideBanner,2500);
+  }catch(err){
+    showBanner("Profile picture save failed: "+err.message);
+  }finally{
+    avatarSaveBtn.disabled=false;avatarSaveBtnTxt.textContent="Save ✓";
+  }
+});
+
+avatarRemoveBtn.addEventListener("click",async()=>{
+  if(!me)return;
+  try{
+    await db.ref("akchat/avatars/"+me).remove();
+    avatars[me]=null;applyAvatars();
+    closeAvatarModal();
+    showBanner("Profile picture removed");setTimeout(hideBanner,2000);
+  }catch(err){showBanner("Remove failed: "+err.message);}
+});
+
 let nickTarget=null;
 function openNickModal(user){
   nickTarget=user;nickModalDesc.textContent="Set a nickname for "+user;
@@ -777,17 +1110,20 @@ function closeModal(){modal.classList.remove("active");codeInput.value="";modalE
 async function doLogin(){
   const code=codeInput.value.trim();
   if(!/^\d{4}$/.test(code)){modalError.style.display="block";return;}
-  // Load codes from Firebase first
-  await loadCodes();
+  loginBtn.disabled=true;
+  // Make sure codes have loaded from Firebase (or fell back) before checking
+  await waitForCodes();
   const user=validCodes[code];
+  loginBtn.disabled=false;
   if(!user){modalError.style.display="block";codeInput.value="";codeInput.focus();return;}
   me=user;closeModal();
   const c=USER_COLORS[me];
   chatUserPill.textContent=getNick(me)+" 🔑";
   chatUserPill.style.background=c.bg;chatUserPill.style.borderColor=c.border;chatUserPill.style.color=c.text;
   chatAv.textContent=me[0];chatAv.style.background=c.av;
+  renderAvEl(myAv,me);
   openChat();
-  if(!listening){listening=true;startListening();listenNicknames();vcInitPeer();acInitPeer();}
+  if(!listening){listening=true;startListening();listenNicknames();listenAvatars();vcInitPeer();acInitPeer();}
   setOnline(true);
 }
 loginBtn.addEventListener("click",doLogin);
@@ -801,7 +1137,7 @@ function openChat(){
 function closeChat(){
   chatPanel.classList.remove("active");chatBackdrop.classList.remove("active");chatOpen=false;
   setOnline(false);stopTyping();me=null;listening=false;chatPill.classList.remove("on");
-  db.ref("akchat/messages").off();db.ref("akchat/typing").off();db.ref("akchat/reactions").off();db.ref("akchat/seen").off();db.ref("akchat/nicknames").off();
+  db.ref("akchat/messages").off();db.ref("akchat/typing").off();db.ref("akchat/reactions").off();db.ref("akchat/seen").off();db.ref("akchat/nicknames").off();db.ref("akchat/avatars").off();
   cancelEdit();cancelReply();editKey=null;replyTo=null;firstLoad=true;lastDate="";
   Array.from(chatBody.children).forEach(c=>{if(c!==typingRow&&!c.classList.contains("chat-empty")&&c.id!=="bgCanvas")c.remove();});
   chatEmpty.style.display="";Object.keys(msgMap).forEach(k=>delete msgMap[k]);
@@ -822,7 +1158,7 @@ function listenSeen(){
       if(!node.data||node.data.sender!==me)return;
       const msgTs=node.data.ts||0;
       const seenEl=node.wrap.querySelector(".seen-label");
-      if(seenTs>=msgTs&&msgTs>0){if(!seenEl){const lbl=document.createElement("div");lbl.className="seen-label";lbl.innerHTML=`<span class="seen-av">${other[0]}</span><span>Seen</span>`;node.wrap.appendChild(lbl);}}
+      if(seenTs>=msgTs&&msgTs>0){if(!seenEl){const lbl=document.createElement("div");lbl.className="seen-label";const avInner=avatars[other]?`<img src="${avatars[other]}" alt="${other}"/>`:other[0];lbl.innerHTML=`<span class="seen-av" data-user="${other}">${avInner}</span><span>Seen</span>`;node.wrap.appendChild(lbl);}}
       else{if(seenEl)seenEl.remove();}
     });
   });
@@ -885,15 +1221,24 @@ function startReply(key,data){
 function cancelReply(){replyTo=null;replyBar.classList.remove("on");}
 rbCancel.addEventListener("click",cancelReply);
 
-/* ══ SEND TEXT — keep keyboard open on Android ══ */
+/* ══ SEND TEXT — keep keyboard open on mobile ══ */
+// Prevent the send button (and other footer buttons) from stealing focus
+// from the textarea on mousedown/touchstart — this is what closes the
+// on-screen keyboard on mobile. preventDefault() here stops the browser's
+// default "blur the currently focused element" behaviour while still
+// letting the subsequent "click" event fire normally.
+[sendBtn,imgBtn,emojiBtn].forEach(btn=>{
+  btn.addEventListener("mousedown",e=>e.preventDefault());
+  btn.addEventListener("touchstart",e=>e.preventDefault(),{passive:false});
+});
+
 function sendMessage(){
   const text=chatInput.value.trim();if(!me)return;
   if(editKey){
     if(!text)return;
     db.ref("akchat/messages/"+editKey).update({text,edited:true}).then(()=>{cancelEdit();hideBanner();}).catch(e=>showBanner("Edit failed: "+e.code));
     sendBtn.disabled=false;
-    // Refocus to keep keyboard open
-    requestAnimationFrame(()=>chatInput.focus());
+    chatInput.focus();
     return;
   }
   if(!text)return;
@@ -904,8 +1249,7 @@ function sendMessage(){
     .then(()=>{
       chatInput.value="";chatInput.style.height="auto";
       stopTyping();hideBanner();cancelReply();
-      // ← KEY FIX: refocus immediately after send to keep keyboard up on Android
-      requestAnimationFrame(()=>chatInput.focus());
+      chatInput.focus();
     })
     .catch(e=>showBanner("Send failed ("+e.code+"): Firebase → Realtime DB → Rules → read+write = true"))
     .finally(()=>sendBtn.disabled=false);
@@ -917,27 +1261,52 @@ sendBtn.addEventListener("click",e=>{
 chatInput.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();}});
 chatInput.addEventListener("input",()=>{chatInput.style.height="auto";chatInput.style.height=Math.min(chatInput.scrollHeight,100)+"px";startTyping();});
 
-/* ══ CLOUDINARY ══ */
+/* ══ CLOUDINARY — supports multiple files at once ══ */
 imgBtn.addEventListener("click",()=>{if(!me){alert("Please login first");return;}imgFileInput.click();});
-imgFileInput.addEventListener("change",async e=>{
-  const file=e.target.files[0];if(!file)return;imgFileInput.value="";if(!me)return;
-  const isVideo=file.type.startsWith("video/"),localUrl=URL.createObjectURL(file),tempKey="temp_"+Date.now(),savedReply=replyTo?{...replyTo}:null;
-  renderMsg(tempKey,{sender:me,ts:Date.now(),text:"",_localImg:isVideo?null:localUrl,_localVid:isVideo?localUrl:null,_uploading:true,replyTo:savedReply});
-  cancelReply();scrollBottom();uploadOverlay.classList.add("show");uploadPct.textContent="Uploading… 0%";
-  try{
+
+function uploadOneFile(file,savedReply){
+  return new Promise((resolve,reject)=>{
+    const isVideo=file.type.startsWith("video/"),localUrl=URL.createObjectURL(file),tempKey="temp_"+Date.now()+"_"+Math.random().toString(36).slice(2);
+    renderMsg(tempKey,{sender:me,ts:Date.now(),text:"",_localImg:isVideo?null:localUrl,_localVid:isVideo?localUrl:null,_uploading:true,replyTo:savedReply});
+    scrollBottom();
     const fd=new FormData();fd.append("upload_preset",CLOUDINARY_PRESET);fd.append("file",file,file.name);
-    const mediaUrl=await new Promise((res,rej)=>{
-      const xhr=new XMLHttpRequest();xhr.open("POST",CLOUDINARY_URL);
-      xhr.upload.onprogress=ev=>{if(ev.lengthComputable){const pct=Math.round(ev.loaded/ev.total*100);uploadPct.textContent="Uploading… "+pct+"%";const bar=msgMap[tempKey]?.wrap.querySelector(".img-upload-bar");if(bar)bar.style.width=pct+"%";}};
-      xhr.onload=()=>{try{const data=JSON.parse(xhr.responseText);if(data.secure_url)res(data.secure_url);else rej(new Error(xhr.responseText));}catch(ex){rej(ex);}};
-      xhr.onerror=()=>rej(new Error("Network error"));xhr.send(fd);
-    });
-    if(msgMap[tempKey]){msgMap[tempKey].wrap.remove();delete msgMap[tempKey];}URL.revokeObjectURL(localUrl);uploadOverlay.classList.remove("show");
-    const payload={text:"",sender:me,ts:firebase.database.ServerValue.TIMESTAMP};
-    if(isVideo)payload.videoUrl=mediaUrl;else payload.imgUrl=mediaUrl;
-    if(savedReply)payload.replyTo=savedReply;
-    await db.ref("akchat/messages").push(payload);hideBanner();
-  }catch(err){if(msgMap[tempKey]){msgMap[tempKey].wrap.remove();delete msgMap[tempKey];}URL.revokeObjectURL(localUrl);uploadOverlay.classList.remove("show");showBanner("Upload failed: "+err.message);}
+    const xhr=new XMLHttpRequest();xhr.open("POST",CLOUDINARY_URL);
+    xhr.upload.onprogress=ev=>{if(ev.lengthComputable){const pct=Math.round(ev.loaded/ev.total*100);const bar=msgMap[tempKey]?.wrap.querySelector(".img-upload-bar");if(bar)bar.style.width=pct+"%";}};
+    xhr.onload=async()=>{
+      try{
+        const data=JSON.parse(xhr.responseText);
+        if(!data.secure_url)throw new Error(data.error?.message||"Upload failed");
+        if(msgMap[tempKey]){msgMap[tempKey].wrap.remove();delete msgMap[tempKey];}
+        URL.revokeObjectURL(localUrl);
+        const payload={text:"",sender:me,ts:firebase.database.ServerValue.TIMESTAMP};
+        if(isVideo)payload.videoUrl=data.secure_url;else payload.imgUrl=data.secure_url;
+        if(savedReply)payload.replyTo=savedReply;
+        await db.ref("akchat/messages").push(payload);
+        resolve();
+      }catch(ex){
+        if(msgMap[tempKey]){msgMap[tempKey].wrap.remove();delete msgMap[tempKey];}
+        URL.revokeObjectURL(localUrl);
+        reject(ex);
+      }
+    };
+    xhr.onerror=()=>{if(msgMap[tempKey]){msgMap[tempKey].wrap.remove();delete msgMap[tempKey];}URL.revokeObjectURL(localUrl);reject(new Error("Network error"));};
+    xhr.send(fd);
+  });
+}
+
+imgFileInput.addEventListener("change",async e=>{
+  const files=Array.from(e.target.files||[]);imgFileInput.value="";
+  if(!files.length||!me)return;
+  const savedReply=replyTo?{...replyTo}:null;cancelReply();
+  uploadOverlay.classList.add("show");
+  let done=0,failed=0;
+  for(const file of files){
+    uploadPct.textContent=`Uploading ${done+1}/${files.length}…`;
+    try{await uploadOneFile(file,savedReply);}catch(err){failed++;showBanner("Upload failed for "+file.name+": "+err.message);}
+    done++;
+  }
+  uploadOverlay.classList.remove("show");
+  if(!failed)hideBanner();
 });
 
 /* ══ TYPING ══ */
