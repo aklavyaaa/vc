@@ -228,7 +228,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sa
 .footer-left{display:flex;gap:4px;align-items:flex-end;flex-shrink:0;}
 .chat-input{flex:1;border:1.5px solid #dbdbdb;border-radius:22px;padding:9px 14px;font-size:14px;resize:none;outline:none;max-height:100px;font-family:inherit;transition:border-color .2s;line-height:1.4;background:#fafafa;-webkit-appearance:none;}
 .chat-input:focus{border-color:#800020;background:#fff;}
-.send-btn{background:linear-gradient(135deg,#800020,#c0002a);color:#fff;border:none;border-radius:50%;width:42px;height:42px;cursor:pointer;font-size:17px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:opacity .15s,transform .1s;-webkit-appearance:none;box-shadow:0 2px 8px rgba(128,0,32,.4);}
+.send-btn{background:linear-gradient(135deg,#800020,#c0002a);color:#fff;border:none;border-radius:50%;width:42px;height:42px;cursor:pointer;font-size:17px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:opacity .15s,transform .1s;-webkit-appearance:none;box-shadow:0 2px 8px rgba(128,0,32,.4);touch-action:manipulation;}
 .send-btn:active{opacity:.8;transform:scale(.93);}
 .send-btn:disabled{opacity:.4;cursor:not-allowed;}
 .img-btn,.emoji-btn,.mic-btn{background:none;border:1.5px solid #dbdbdb;border-radius:50%;width:40px;height:40px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s,border-color .15s;color:#555;}
@@ -692,7 +692,6 @@ function fmtSecs(s){const m=Math.floor(s/60),sec=s%60;return m+":"+(sec<10?"0":"
 /* ══ ANIMATED BG CANVAS ══ */
 (function(){
   const ctx=bgCanvas.getContext("2d");
-  // Cute pastel floating hearts + stars
   const shapes=[];
   const EMOJIS_BG=["💜","🌸","✨","💕","🌷","⭐","💫","🦋","🌺","💖"];
   function resize(){bgCanvas.width=chatBody.offsetWidth||380;bgCanvas.height=chatBody.offsetHeight||400;}
@@ -714,14 +713,12 @@ function fmtSecs(s){const m=Math.floor(s/60),sec=s%60;return m+":"+(sec<10?"0":"
   function draw(){
     if(!bgCanvas.width)resize();
     ctx.clearRect(0,0,bgCanvas.width,bgCanvas.height);
-    // Soft gradient bg
     const grad=ctx.createLinearGradient(0,0,bgCanvas.width,bgCanvas.height);
     grad.addColorStop(0,"#fdf4ff");
     grad.addColorStop(.5,"#f0e8ff");
     grad.addColorStop(1,"#fce8f3");
     ctx.fillStyle=grad;
     ctx.fillRect(0,0,bgCanvas.width,bgCanvas.height);
-    // Float emojis
     const now=Date.now()/1000;
     shapes.forEach(s=>{
       s.y-=s.speed*.4;
@@ -738,8 +735,7 @@ function fmtSecs(s){const m=Math.floor(s/60),sec=s%60;return m+":"+(sec<10?"0":"
   new ResizeObserver(()=>{resize();initShapes();}).observe(chatBody);
 })();
 
-/* ══ FIREBASE CODES (stored in DB, kept live via listener) ══ */
-// Fallback codes if not in DB yet
+/* ══ FIREBASE CODES ══ */
 let validCodes={"2006":"Aku","2008":"Billu"};
 
 function listenCodes(){
@@ -751,10 +747,9 @@ function listenCodes(){
     }
     codesReady=true;
   },err=>{
-    codesReady=true; // fall back to default codes if DB read is blocked
+    codesReady=true;
     showBanner("⚠️ Firebase codes blocked ("+err.code+"): using default codes. Fix Realtime DB → Rules → read/write = true");
   });
-  // Seed default codes if missing (only if we can write)
   db.ref("akchat/codes").once("value").then(snap=>{
     if(!snap.val())db.ref("akchat/codes").set({Aku:"2006",Billu:"2008"}).catch(()=>{});
   }).catch(()=>{});
@@ -765,7 +760,7 @@ function waitForCodes(){
   if(codesReady)return Promise.resolve();
   return new Promise(res=>{
     const iv=setInterval(()=>{if(codesReady){clearInterval(iv);res();}},50);
-    setTimeout(()=>{clearInterval(iv);res();},3000); // don't hang forever
+    setTimeout(()=>{clearInterval(iv);res();},3000);
   });
 }
 
@@ -786,7 +781,6 @@ async function saveNewCode(){
   chcodeError.style.display="none";
   if(!/^\d{4}$/.test(newVal)){chcodeError.textContent="New code must be exactly 4 digits.";chcodeError.style.display="block";return;}
   if(newVal!==confVal){chcodeError.textContent="New codes don't match.";chcodeError.style.display="block";return;}
-  // Verify old code from Firebase (fall back to in-memory validCodes if read fails)
   let currentCode=validCodes && Object.entries(validCodes).find(([c,u])=>u===me)?.[0];
   try{
     const snap=await db.ref("akchat/codes/"+me).once("value");
@@ -797,7 +791,6 @@ async function saveNewCode(){
     return;
   }
   if(oldVal!==currentCode){chcodeError.textContent="Current code is incorrect.";chcodeError.style.display="block";return;}
-  // Check new code not already used by the other user
   try{
     const allSnap=await db.ref("akchat/codes").once("value");
     const all=allSnap.val()||{};
@@ -808,7 +801,6 @@ async function saveNewCode(){
     chcodeError.style.display="block";
     return;
   }
-  // Actually write the new code — abort on failure instead of pretending success
   try{
     await db.ref("akchat/codes/"+me).set(newVal);
   }catch(e){
@@ -816,7 +808,6 @@ async function saveNewCode(){
     chcodeError.style.display="block";
     return;
   }
-  // Update local cache immediately (listener will also refresh it)
   Object.keys(validCodes).forEach(c=>{if(validCodes[c]===me)delete validCodes[c];});
   validCodes[newVal]=me;
   closeChcodeModal();
@@ -828,7 +819,6 @@ chcodeCancelBtn.addEventListener("click",closeChcodeModal);
 chcodeModal.addEventListener("click",e=>{if(e.target===chcodeModal)closeChcodeModal();});
 [chcodeOld,chcodeNew,chcodeConfirm].forEach(inp=>inp.addEventListener("keydown",e=>{if(e.key==="Enter")saveNewCode();if(e.key==="Escape")closeChcodeModal();}));
 
-// Tap pill to open change code modal
 chatUserPill.addEventListener("click",e=>{e.stopPropagation();if(me)openChcodeModal();});
 
 /* ══ NICKNAME ══ */
@@ -873,10 +863,10 @@ function listenAvatars(){
   });
 }
 
-/* ══ AVATAR MODAL: pick → crop/rotate → save ══ */
+/* ══ AVATAR MODAL ══ */
 let cropState={scale:1,baseScale:1,rot:0,offX:0,offY:0,imgW:0,imgH:0,naturalW:0,naturalH:0};
-let cropDrag=null; // {startX,startY,startOffX,startOffY} or pinch state
-const CROP_STAGE_SIZE=300; // logical square size used for math; actual element is responsive via CSS but stage box is square
+let cropDrag=null;
+const CROP_STAGE_SIZE=300;
 
 function openAvatarModal(){
   if(!me)return;
@@ -927,14 +917,12 @@ function applyCropTransform(){
   const rad=cropState.rot*Math.PI/180;
   const rotatedW=Math.abs(cropState.naturalW*Math.cos(rad))+Math.abs(cropState.naturalH*Math.sin(rad));
   const rotatedH=Math.abs(cropState.naturalW*Math.sin(rad))+Math.abs(cropState.naturalH*Math.cos(rad));
-  // base scale = smallest scale so the rotated image fully covers the circular stage
   const baseScale=stageSize/Math.min(rotatedW,rotatedH);
   cropState.baseScale=baseScale;
   const zoomMult=(parseFloat(cropZoom.value)||100)/100;
   const finalScale=baseScale*zoomMult;
   cropState.scale=finalScale;
 
-  // clamp offsets so the image never leaves the visible circle
   const dispW=cropState.naturalW*finalScale,dispH=cropState.naturalH*finalScale;
   const rotDispW=Math.abs(dispW*Math.cos(rad))+Math.abs(dispH*Math.sin(rad));
   const rotDispH=Math.abs(dispW*Math.sin(rad))+Math.abs(dispH*Math.cos(rad));
@@ -956,7 +944,6 @@ cropRotRight.addEventListener("click",()=>{cropState.rot=(cropState.rot+90)%360;
 cropReset.addEventListener("click",()=>{cropState.rot=0;cropState.offX=0;cropState.offY=0;cropZoom.value=100;applyCropTransform();});
 new ResizeObserver(()=>applyCropTransform()).observe(cropStage);
 
-/* Drag to reposition */
 cropCanvasWrap.addEventListener("pointerdown",e=>{
   cropCanvasWrap.setPointerCapture(e.pointerId);
   cropDrag={startX:e.clientX,startY:e.clientY,startOffX:cropState.offX,startOffY:cropState.offY};
@@ -971,7 +958,6 @@ function endCropDrag(e){cropDrag=null;try{cropCanvasWrap.releasePointerCapture(e
 cropCanvasWrap.addEventListener("pointerup",endCropDrag);
 cropCanvasWrap.addEventListener("pointercancel",endCropDrag);
 
-/* Pinch to zoom (touch) */
 let pinchStartDist=null,pinchStartZoom=100;
 cropCanvasWrap.addEventListener("touchstart",e=>{
   if(e.touches.length===2){
@@ -991,14 +977,12 @@ cropCanvasWrap.addEventListener("touchmove",e=>{
 },{passive:true});
 cropCanvasWrap.addEventListener("touchend",e=>{if(e.touches.length<2)pinchStartDist=null;});
 
-/* Render the cropped circle to a canvas → blob, upload to Cloudinary, save URL to Firebase */
 function renderCroppedAvatarBlob(){
   return new Promise(resolve=>{
-    const OUT=512; // output px
+    const OUT=512;
     const canvas=document.createElement("canvas");
     canvas.width=OUT;canvas.height=OUT;
     const ctx=canvas.getContext("2d");
-    // circular clip
     ctx.save();
     ctx.beginPath();ctx.arc(OUT/2,OUT/2,OUT/2,0,Math.PI*2);ctx.closePath();ctx.clip();
     ctx.fillStyle="#fff";ctx.fillRect(0,0,OUT,OUT);
@@ -1121,7 +1105,6 @@ async function doLogin(){
   const code=codeInput.value.trim();
   if(!/^\d{4}$/.test(code)){modalError.style.display="block";return;}
   loginBtn.disabled=true;
-  // Make sure codes have loaded from Firebase (or fell back) before checking
   await waitForCodes();
   const user=validCodes[code];
   loginBtn.disabled=false;
@@ -1231,15 +1214,9 @@ function startReply(key,data){
 function cancelReply(){replyTo=null;replyBar.classList.remove("on");}
 rbCancel.addEventListener("click",cancelReply);
 
-/* ══ SEND TEXT — keep keyboard open on mobile ══ */
-// Prevent the send button (and other footer buttons) from stealing focus
-// from the textarea on mousedown/touchstart — this is what closes the
-// on-screen keyboard on mobile. preventDefault() here stops the browser's
-// default "blur the currently focused element" behaviour while still
-// letting the subsequent "click" event fire normally.
+/* ══ SEND TEXT ══ */
 [sendBtn,imgBtn,emojiBtn].forEach(btn=>{
   btn.addEventListener("mousedown",e=>e.preventDefault());
-  btn.addEventListener("touchstart",e=>e.preventDefault(),{passive:false});
 });
 
 function sendMessage(){
@@ -1264,14 +1241,27 @@ function sendMessage(){
     .catch(e=>showBanner("Send failed ("+e.code+"): Firebase → Realtime DB → Rules → read+write = true"))
     .finally(()=>sendBtn.disabled=false);
 }
+
+// FIX: Robust mobile touch/click handler for Send Button
+let sendBtnTouched=false;
+sendBtn.addEventListener("touchstart",e=>{
+  e.preventDefault();
+  sendBtnTouched=true;
+  sendMessage();
+},{passive:false});
+
 sendBtn.addEventListener("click",e=>{
-  e.preventDefault(); // prevent any blur
+  if(sendBtnTouched){
+    sendBtnTouched=false;
+    return;
+  }
   sendMessage();
 });
+
 chatInput.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();}});
 chatInput.addEventListener("input",()=>{chatInput.style.height="auto";chatInput.style.height=Math.min(chatInput.scrollHeight,100)+"px";startTyping();});
 
-/* ══ CLOUDINARY — supports multiple files at once ══ */
+/* ══ CLOUDINARY ══ */
 imgBtn.addEventListener("click",()=>{if(!me){alert("Please login first");return;}imgFileInput.click();});
 
 function uploadOneFile(file,savedReply){
@@ -1473,7 +1463,6 @@ function renderMsg(key,d){
   const edEl=document.createElement("span");edEl.className="bbl-edited";edEl.textContent="edited";edEl.style.display=d.edited&&!d.deleted?"inline":"none";meta.appendChild(edEl);
   bbl.appendChild(meta);
 
-  // Out: bubble LEFT of action buttons (so they appear to the right)
   if(isOut){row.appendChild(bbl);row.appendChild(rBtn);row.appendChild(repBtn);}
   else{row.appendChild(bbl);row.appendChild(rBtn);row.appendChild(repBtn);}
   group.appendChild(row);
@@ -1506,13 +1495,12 @@ vidViewerClose.addEventListener("click",closeVidViewer);
 vidViewer.addEventListener("click",e=>{if(e.target===vidViewer)closeVidViewer();});
 function scrollBottom(){requestAnimationFrame(()=>{chatBody.scrollTop=chatBody.scrollHeight;});}
 
-/* ══ KEYBOARD FIX (Android viewport) ══ */
+/* ══ KEYBOARD FIX ══ */
 if(window.visualViewport){
   window.visualViewport.addEventListener("resize",()=>{
     if(!chatOpen)return;
     const offset=Math.max(0,window.innerHeight-window.visualViewport.height);
     chatPanel.style.bottom=offset+"px";
-    // When keyboard opens, scroll to bottom so last message is visible
     if(offset>100)scrollBottom();
   });
 }
