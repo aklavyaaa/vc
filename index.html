@@ -119,26 +119,38 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sa
 .chat-panel{position:fixed;bottom:0;right:16px;width:420px;background:#fff;border-radius:16px 16px 0 0;box-shadow:0 -2px 0 rgba(0,0,0,.08),0 -8px 30px rgba(0,0,0,.18);z-index:850;display:none;flex-direction:column;overflow:hidden;max-height:88vh;}
 .chat-panel.active{display:flex;}
 @media(max-width:600px){.chat-panel{right:0;left:0;width:100%;border-radius:0;max-height:100dvh;height:100dvh;}}
-.chat-header{background:linear-gradient(135deg,#1a1a2e 0%,#2d1a4e 100%);border-bottom:1px solid rgba(255,255,255,.08);padding:10px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
-.chat-back-btn{background:none;border:none;cursor:pointer;font-size:22px;padding:2px 6px 2px 0;color:#fff;line-height:1;display:none;}
+.chat-header{background:linear-gradient(135deg,#1a1a2e 0%,#2d1a4e 100%);border-bottom:1px solid rgba(255,255,255,.08);padding:11px 14px;display:flex;align-items:center;gap:11px;flex-shrink:0;}
+.chat-back-btn{background:none;border:none;cursor:pointer;font-size:24px;padding:0 4px 0 0;color:#fff;line-height:1;display:none;flex-shrink:0;}
 @media(max-width:600px){.chat-back-btn{display:block;}}
 .chat-av-wrap{position:relative;flex-shrink:0;cursor:pointer;}
 .chat-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:900;border:2px solid rgba(255,255,255,.25);overflow:hidden;position:relative;}
 .av-status{position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;border:2px solid #1a1a2e;background:#d1d5db;}
 .av-status.online{background:#22c55e;}
 .chat-header-info{flex:1;min-width:0;cursor:pointer;}
-.chat-header-name{font-size:15px;font-weight:800;color:#fff;line-height:1.2;display:flex;align-items:center;gap:5px;}
-.chat-header-name .edit-nick-ico{font-size:12px;opacity:.5;transition:opacity .15s;}
+.chat-header-name{font-size:15px;font-weight:800;color:#fff;line-height:1.25;display:flex;align-items:center;gap:5px;}
+.chat-header-name .edit-nick-ico{font-size:11px;opacity:.45;transition:opacity .15s;}
 .chat-header-name:hover .edit-nick-ico{opacity:1;}
-.chat-header-sub{font-size:11px;color:rgba(255,255,255,.6);margin-top:1px;}
+.chat-header-sub{font-size:11.5px;color:rgba(255,255,255,.55);margin-top:1px;line-height:1.3;}
 .chat-header-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
-.icoBtn{background:rgba(255,255,255,.1);border:none;cursor:pointer;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background .15s;color:#fff;}
-.icoBtn:hover,.icoBtn:active{background:rgba(255,255,255,.2);}
-.chat-user-pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;border:1.5px solid;white-space:nowrap;cursor:pointer;}
-.online-bar{background:rgba(26,26,46,.05);border-bottom:1px solid #f0f0f0;padding:6px 16px;display:flex;align-items:center;gap:16px;flex-shrink:0;}
-.uc{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#262626;}
-.uc-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;background:#d1d5db;transition:background .3s;}
-.uc-dot.on{background:#22c55e;box-shadow:0 0 0 2px rgba(34,197,94,.25);}
+.icoBtn{background:rgba(255,255,255,.1);border:none;cursor:pointer;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background .15s,transform .1s;color:#fff;flex-shrink:0;}
+.icoBtn:hover{background:rgba(255,255,255,.18);}
+.icoBtn:active{transform:scale(.92);}
+.icoBtn.close-btn{font-size:15px;}
+@media(min-width:601px){.chat-header-right .close-btn{display:flex;}}
+/* Compact identity strip: replaces the old two-dot "online-bar" */
+.identity-bar{background:#fafafa;border-bottom:1px solid #eee;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-shrink:0;}
+.id-chip{display:flex;align-items:center;gap:7px;min-width:0;}
+.id-chip.me{cursor:pointer;}
+.id-av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;flex-shrink:0;overflow:hidden;position:relative;border:1.5px solid #fff;box-shadow:0 0 0 1px #e1e3e5;}
+.id-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.id-av .cam-mini{position:absolute;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;font-size:9px;opacity:0;transition:opacity .15s;}
+.id-chip.me:hover .cam-mini{opacity:1;}
+.id-label{font-size:12px;font-weight:700;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.id-label.dim{color:#999;font-weight:600;}
+.id-dot{width:8px;height:8px;border-radius:50%;background:#d1d5db;flex-shrink:0;transition:background .3s;}
+.id-dot.on{background:#22c55e;box-shadow:0 0 0 2px rgba(34,197,94,.2);}
+.id-code-btn{background:none;border:none;cursor:pointer;font-size:13px;color:#999;padding:2px 4px;flex-shrink:0;line-height:1;transition:color .15s;}
+.id-code-btn:hover{color:#800020;}
 /* ── CHAT BODY with animated BG ── */
 .chat-body{flex:1;overflow-y:auto;padding:14px 14px 6px;display:flex;flex-direction:column;gap:3px;min-height:0;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;position:relative;}
 .chat-body::-webkit-scrollbar{width:0;}
@@ -326,7 +338,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sa
 .chat-av-wrap.clickable{cursor:pointer;}
 .chat-av img,.rp-av-preview img,.seen-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 .seen-av{overflow:hidden;}
-.av-cam-badge{position:absolute;bottom:-2px;right:-2px;width:18px;height:18px;border-radius:50%;background:#800020;border:2px solid #1a1a2e;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;}
 .avatar-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9300;align-items:center;justify-content:center;padding:16px;}
 .avatar-modal-overlay.active{display:flex;}
 .avatar-modal{background:#fff;border-radius:18px;padding:20px;width:100%;max-width:420px;text-align:center;animation:slideUp .25s ease;}
@@ -549,25 +560,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sa
       <div class="chat-av" id="chatAv">💬</div>
       <div class="av-status" id="otherStatus"></div>
     </div>
-    <div class="chat-av-wrap clickable" id="myAvWrap" title="Change my profile picture" style="margin-left:2px;">
-      <div class="chat-av" id="myAv" style="width:34px;height:34px;font-size:12px;">🙂</div>
-      <div class="av-cam-badge">📷</div>
-    </div>
     <div class="chat-header-info" id="headerInfo">
       <div class="chat-header-name" id="chatHeaderName">AKChat <span class="edit-nick-ico">✏️</span></div>
       <div class="chat-header-sub" id="chatHeaderSub"></div>
     </div>
     <div class="chat-header-right">
-      <span class="chat-user-pill" id="chatUserPill" title="Change my code"></span>
       <button class="icoBtn acall-btn" id="acallBtn" title="Voice Call">📞</button>
       <button class="icoBtn vcall-btn" id="vcallBtn" title="Video Call">📹</button>
-      <button class="icoBtn" id="minBtn">—</button>
+      <button class="icoBtn close-btn" id="minBtn" title="Close chat">✕</button>
     </div>
   </div>
-  <div class="online-bar">
-    <div class="uc"><div class="uc-dot" id="dAku"></div><span id="labelAku">Aku</span></div>
-    <div style="width:1px;height:12px;background:#dbdbdb"></div>
-    <div class="uc"><div class="uc-dot" id="dBillu"></div><span id="labelBillu">Billu</span></div>
+  <div class="identity-bar">
+    <div class="id-chip me" id="myAvWrap" title="Change my profile picture">
+      <div class="id-av" id="myAv">🙂<span class="cam-mini">📷</span></div>
+      <span class="id-label dim">You</span>
+      <button class="id-code-btn" id="chatUserPill" title="Change my code">🔑</button>
+    </div>
+    <div class="id-chip"><span class="id-label" id="labelAku">Aku</span><div class="id-dot" id="dAku"></div></div>
+    <div class="id-chip"><span class="id-label" id="labelBillu">Billu</span><div class="id-dot" id="dBillu"></div></div>
   </div>
   <div class="chat-body" id="chatBody">
     <canvas id="bgCanvas"></canvas>
@@ -1118,8 +1128,8 @@ async function doLogin(){
   if(!user){modalError.style.display="block";codeInput.value="";codeInput.focus();return;}
   me=user;closeModal();
   const c=USER_COLORS[me];
-  chatUserPill.textContent=getNick(me)+" 🔑";
-  chatUserPill.style.background=c.bg;chatUserPill.style.borderColor=c.border;chatUserPill.style.color=c.text;
+  chatUserPill.textContent="🔑";chatUserPill.title="Change my code ("+getNick(me)+")";
+  chatUserPill.style.color=c.border;
   chatAv.textContent=me[0];chatAv.style.background=c.av;
   renderAvEl(myAv,me);
   openChat();
@@ -1141,7 +1151,7 @@ function closeChat(){
   cancelEdit();cancelReply();editKey=null;replyTo=null;firstLoad=true;lastDate="";
   Array.from(chatBody.children).forEach(c=>{if(c!==typingRow&&!c.classList.contains("chat-empty")&&c.id!=="bgCanvas")c.remove();});
   chatEmpty.style.display="";Object.keys(msgMap).forEach(k=>delete msgMap[k]);
-  typingRow.classList.remove("on");chatUserPill.textContent="";unread=0;unreadBadge.style.display="none";
+  typingRow.classList.remove("on");chatUserPill.textContent="🔑";unread=0;unreadBadge.style.display="none";
 }
 chatBackdrop.addEventListener("click",closeChat);
 backBtn.addEventListener("click",closeChat);
@@ -1190,7 +1200,7 @@ let lastSeenListenerOff=null;
 function listenPresence(){
   ["Aku","Billu"].forEach(u=>{
     db.ref("akchat/online/"+u).on("value",snap=>{
-      const dot=u==="Aku"?dAku:dBillu;dot.className="uc-dot"+(snap.val()?" on":"");
+      const dot=u==="Aku"?dAku:dBillu;dot.className="id-dot"+(snap.val()?" on":"");
       if(me&&u!==me){
         otherStatus.className="av-status"+(snap.val()?" online":"");
         if(snap.val()){chatHeaderSub.textContent="🟢 Active now";if(lastSeenListenerOff){lastSeenListenerOff();lastSeenListenerOff=null;}}
