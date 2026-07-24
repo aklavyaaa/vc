@@ -372,6 +372,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sa
 .avatar-remove-link{background:none;border:none;color:#e44d36;font-size:12px;font-weight:700;cursor:pointer;margin-top:10px;}
 .av-spinner{width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:avspin .7s linear infinite;}
 @keyframes avspin{to{transform:rotate(360deg);}}
+/* PROFILE PIC VIEWER (view + zoom) */
+.pfp-viewer{display:none;position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:9970;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;touch-action:none;}
+.pfp-viewer.on{display:flex;}
+.pfp-viewer-stage{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.pfp-viewer-stage img{max-width:92vw;max-height:82vh;border-radius:10px;object-fit:contain;touch-action:none;user-select:none;-webkit-user-drag:none;will-change:transform;transition:transform .05s linear;}
+.pfp-viewer-stage img.snap-back{transition:transform .25s cubic-bezier(.2,.8,.3,1);}
+.pfp-viewer-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:22px;width:42px;height:42px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;}
+.pfp-viewer-name{position:absolute;top:20px;left:20px;color:#fff;font-size:15px;font-weight:800;z-index:2;text-shadow:0 1px 4px rgba(0,0,0,.5);}
+.pfp-viewer-hint{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.6);font-size:12px;z-index:2;-webkit-user-select:none;user-select:none;}
+@media(max-width:600px){.pfp-viewer-hint{display:none;}}
+.pfp-zoom-controls{position:absolute;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:2;}
+.pfp-zoom-btn{background:rgba(255,255,255,.15);border:none;color:#fff;font-size:20px;width:42px;height:42px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .1s;}
+.pfp-zoom-btn:active{transform:scale(.9);background:rgba(255,255,255,.28);}
+@media(max-width:600px){.avatar-back-link{margin-bottom:10px;}}
 @media(max-width:600px){.browser-bar,.right-panel{display:none;}.sidebar{display:none;}.shopify-search{max-width:130px;}.order-actions .btn:nth-child(n+3){display:none;}.content{padding:10px;}}
 @media(max-width:900px){.sidebar{width:44px;}.sidebar-item>span:not(.sidebar-badge){display:none;}.sidebar-sub{display:none;}}
 @media(max-width:900px) and (min-width:601px){.right-panel{display:none;}.chat-panel{width:380px;}}
@@ -550,13 +564,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sa
   </div>
 </div>
 
+<!-- PROFILE PICTURE VIEWER (view + zoom) -->
+<div class="pfp-viewer" id="pfpViewer">
+  <div class="pfp-viewer-name" id="pfpViewerName"></div>
+  <button class="pfp-viewer-close" id="pfpViewerClose">✕</button>
+  <div class="pfp-viewer-stage" id="pfpViewerStage">
+    <img id="pfpViewerImg" src="" alt=""/>
+  </div>
+  <div class="pfp-zoom-controls">
+    <button class="pfp-zoom-btn" id="pfpZoomInBtn">＋</button>
+    <button class="pfp-zoom-btn" id="pfpZoomOutBtn">－</button>
+    <button class="pfp-zoom-btn" id="pfpZoomResetBtn" style="font-size:14px;">⟲</button>
+  </div>
+  <div class="pfp-viewer-hint">Scroll or pinch to zoom · drag to pan</div>
+</div>
+
 <div class="chat-backdrop" id="chatBackdrop"></div>
 
 <!-- CHAT PANEL -->
 <div class="chat-panel" id="chatPanel">
   <div class="chat-header">
     <button class="chat-back-btn" id="backBtn">‹</button>
-    <div class="chat-av-wrap" id="headerAvWrap">
+    <div class="chat-av-wrap clickable" id="headerAvWrap">
       <div class="chat-av" id="chatAv">💬</div>
       <div class="av-status" id="otherStatus"></div>
     </div>
@@ -1048,8 +1077,127 @@ nickSaveBtn.addEventListener("click",saveNick);
 nickCancelBtn.addEventListener("click",closeNickModal);
 nickInput.addEventListener("keydown",e=>{if(e.key==="Enter")saveNick();if(e.key==="Escape")closeNickModal();});
 nickModal.addEventListener("click",e=>{if(e.target===nickModal)closeNickModal();});
+
+/* ══ PROFILE PICTURE VIEWER (view + zoom) ══ */
+const pfpViewer=$("pfpViewer"),pfpViewerImg=$("pfpViewerImg"),pfpViewerClose=$("pfpViewerClose"),pfpViewerName=$("pfpViewerName");
+const pfpZoomInBtn=$("pfpZoomInBtn"),pfpZoomOutBtn=$("pfpZoomOutBtn"),pfpZoomResetBtn=$("pfpZoomResetBtn"),pfpViewerStage=$("pfpViewerStage");
+let pfpScale=1,pfpPanX=0,pfpPanY=0,pfpMinScale=1,pfpMaxScale=6;
+let pfpDrag=null,pfpPinchStartDist=null,pfpPinchStartScale=1,pfpLastTapTime=0;
+
+function pfpApplyTransform(animated){
+  pfpViewerImg.classList.toggle("snap-back",!!animated);
+  pfpViewerImg.style.transform=`translate(${pfpPanX}px,${pfpPanY}px) scale(${pfpScale})`;
+}
+function pfpClampPan(){
+  const stageRect=pfpViewerStage.getBoundingClientRect();
+  const imgRect=pfpViewerImg.getBoundingClientRect();
+  const baseW=imgRect.width/pfpScale, baseH=imgRect.height/pfpScale;
+  const scaledW=baseW*pfpScale, scaledH=baseH*pfpScale;
+  const maxX=Math.max(0,(scaledW-stageRect.width)/2);
+  const maxY=Math.max(0,(scaledH-stageRect.height)/2);
+  pfpPanX=Math.max(-maxX,Math.min(maxX,pfpPanX));
+  pfpPanY=Math.max(-maxY,Math.min(maxY,pfpPanY));
+}
+function pfpSetScale(newScale,animated){
+  pfpScale=Math.max(pfpMinScale,Math.min(pfpMaxScale,newScale));
+  if(pfpScale<=pfpMinScale+0.001){pfpPanX=0;pfpPanY=0;}
+  pfpClampPan();
+  pfpApplyTransform(animated);
+}
+function openPfpViewer(url,name){
+  if(!url)return;
+  pfpScale=1;pfpPanX=0;pfpPanY=0;
+  pfpViewerImg.src=url;
+  pfpViewerName.textContent=name||"";
+  pfpViewer.classList.add("on");
+  pfpApplyTransform(false);
+}
+function closePfpViewer(){
+  pfpViewer.classList.remove("on");
+  pfpViewerImg.src="";
+  pfpDrag=null;pfpPinchStartDist=null;
+}
+pfpViewerClose.addEventListener("click",closePfpViewer);
+pfpViewer.addEventListener("click",e=>{if(e.target===pfpViewer)closePfpViewer();});
+pfpZoomInBtn.addEventListener("click",()=>pfpSetScale(pfpScale+0.5,true));
+pfpZoomOutBtn.addEventListener("click",()=>pfpSetScale(pfpScale-0.5,true));
+pfpZoomResetBtn.addEventListener("click",()=>{pfpScale=1;pfpPanX=0;pfpPanY=0;pfpApplyTransform(true);});
+
+// Mouse wheel zoom (desktop)
+pfpViewerStage.addEventListener("wheel",e=>{
+  e.preventDefault();
+  const delta=e.deltaY<0?0.15:-0.15;
+  pfpSetScale(pfpScale+delta*pfpScale,false);
+},{passive:false});
+
+// Drag to pan (mouse)
+pfpViewerStage.addEventListener("pointerdown",e=>{
+  if(e.pointerType==="touch")return; // touch handled separately for pinch support
+  if(pfpScale<=pfpMinScale)return;
+  pfpDrag={startX:e.clientX,startY:e.clientY,startPanX:pfpPanX,startPanY:pfpPanY};
+  pfpViewerStage.setPointerCapture(e.pointerId);
+});
+pfpViewerStage.addEventListener("pointermove",e=>{
+  if(!pfpDrag||e.pointerType==="touch")return;
+  pfpPanX=pfpDrag.startPanX+(e.clientX-pfpDrag.startX);
+  pfpPanY=pfpDrag.startPanY+(e.clientY-pfpDrag.startY);
+  pfpClampPan();
+  pfpApplyTransform(false);
+});
+function pfpEndDrag(e){pfpDrag=null;try{pfpViewerStage.releasePointerCapture(e.pointerId);}catch(ex){}}
+pfpViewerStage.addEventListener("pointerup",pfpEndDrag);
+pfpViewerStage.addEventListener("pointercancel",pfpEndDrag);
+
+// Touch: single-finger pan + two-finger pinch zoom + double-tap zoom
+pfpViewerStage.addEventListener("touchstart",e=>{
+  if(e.touches.length===2){
+    pfpDrag=null;
+    const dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY;
+    pfpPinchStartDist=Math.hypot(dx,dy);pfpPinchStartScale=pfpScale;
+  }else if(e.touches.length===1){
+    pfpPinchStartDist=null;
+    const now=Date.now();
+    if(now-pfpLastTapTime<300){
+      // double tap
+      if(pfpScale>pfpMinScale+0.05){pfpScale=1;pfpPanX=0;pfpPanY=0;}
+      else{pfpScale=2.5;}
+      pfpApplyTransform(true);
+      pfpLastTapTime=0;
+    }else{
+      pfpLastTapTime=now;
+      if(pfpScale>pfpMinScale){
+        pfpDrag={startX:e.touches[0].clientX,startY:e.touches[0].clientY,startPanX:pfpPanX,startPanY:pfpPanY};
+      }
+    }
+  }
+},{passive:true});
+pfpViewerStage.addEventListener("touchmove",e=>{
+  if(e.touches.length===2&&pfpPinchStartDist){
+    const dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY;
+    const dist=Math.hypot(dx,dy);
+    pfpSetScale(pfpPinchStartScale*(dist/pfpPinchStartDist),false);
+  }else if(e.touches.length===1&&pfpDrag){
+    pfpPanX=pfpDrag.startPanX+(e.touches[0].clientX-pfpDrag.startX);
+    pfpPanY=pfpDrag.startPanY+(e.touches[0].clientY-pfpDrag.startY);
+    pfpClampPan();
+    pfpApplyTransform(false);
+  }
+},{passive:true});
+pfpViewerStage.addEventListener("touchend",e=>{
+  if(e.touches.length<2)pfpPinchStartDist=null;
+  if(e.touches.length===0)pfpDrag=null;
+});
+
+function openOtherProfilePic(){
+  if(!me)return;
+  const other=me==="Aku"?"Billu":"Aku";
+  const url=avatars[other];
+  if(!url){showBanner(getNick(other)+" hasn't set a profile picture yet");setTimeout(hideBanner,2200);return;}
+  openPfpViewer(url,getNick(other));
+}
+headerAvWrap.addEventListener("click",e=>{e.stopPropagation();openOtherProfilePic();});
+
 headerInfo.addEventListener("click",()=>{if(me){const other=me==="Aku"?"Billu":"Aku";openNickModal(other);}});
-headerAvWrap.addEventListener("click",()=>{if(me){const other=me==="Aku"?"Billu":"Aku";openNickModal(other);}});
 
 /* ══ EMOJI PANEL ══ */
 EMOJIS_PANEL.forEach(em=>{
@@ -1242,7 +1390,7 @@ function sendMessage(){
     .finally(()=>sendBtn.disabled=false);
 }
 
-// FIX: Robust mobile touch/click handler for Send Button
+// Robust mobile touch/click handler for Send Button
 let sendBtnTouched=false;
 sendBtn.addEventListener("touchstart",e=>{
   e.preventDefault();
@@ -1505,7 +1653,7 @@ if(window.visualViewport){
   });
 }
 
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeModal();closeNickModal();closeChcodeModal();closePicker();closeCtx();hideMenuDim();imgViewer.classList.remove("on");closeVidViewer();vcHideOverlay();acHideOverlay();}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeModal();closeNickModal();closeChcodeModal();closePicker();closeCtx();hideMenuDim();imgViewer.classList.remove("on");closeVidViewer();closePfpViewer();vcHideOverlay();acHideOverlay();}});
 
 /* ═══════════ VIDEO CALL ═══════════ */
 const VC_PEER_IDS={Aku:"akchat-aku-video-2026",Billu:"akchat-billu-video-2026"};
