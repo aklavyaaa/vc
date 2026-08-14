@@ -718,6 +718,45 @@ function showBanner(m){dbBanner.textContent=m;dbBanner.classList.add("show");}
 function hideBanner(){dbBanner.classList.remove("show");}
 function fmtSecs(s){const m=Math.floor(s/60),sec=s%60;return m+":"+(sec<10?"0":"")+sec;}
 
+/* ══ SAFE MEDIA PERMISSION HELPER ══
+   Wraps getUserMedia so a missing/denied camera or mic never throws an
+   uncaught error — it always resolves (to a stream, or null on failure)
+   and shows the person a clear, actionable message instead of a silent crash. */
+function mediaPermissionMessage(err,kind){
+  const name=err&&err.name;
+  if(name==="NotAllowedError"||name==="PermissionDeniedError"||name==="SecurityError"){
+    return "🔒 "+kind+" access was blocked. Please allow it: tap the 🔒/ⓘ icon next to the address bar → Permissions → Camera/Microphone → Allow, then try again.";
+  }
+  if(name==="NotFoundError"||name==="DevicesNotFoundError"){
+    return "⚠️ No "+kind.toLowerCase()+" found on this device.";
+  }
+  if(name==="NotReadableError"||name==="TrackStartError"){
+    return "⚠️ "+kind+" is already in use by another app. Close other apps using it and try again.";
+  }
+  if(name==="OverconstrainedError"){
+    return "⚠️ "+kind+" doesn't support the requested settings.";
+  }
+  return "⚠️ Couldn't access "+kind.toLowerCase()+": "+(err&&err.message?err.message:"unknown error");
+}
+async function requestMediaAccess(constraints,kind){
+  if(!window.isSecureContext){
+    showBanner("⚠️ "+kind+" needs a secure (https://) connection to work in this browser.");
+    return null;
+  }
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    showBanner("⚠️ This browser doesn't support "+kind.toLowerCase()+" access. Please try Chrome, Safari, or Edge.");
+    return null;
+  }
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia(constraints);
+    hideBanner();
+    return stream;
+  }catch(err){
+    showBanner(mediaPermissionMessage(err,kind));
+    return null;
+  }
+}
+
 /* ══ ANIMATED BG CANVAS ══ */
 (function(){
   const ctx=bgCanvas.getContext("2d");
@@ -912,15 +951,21 @@ avatarPickCamera.addEventListener("click",()=>avatarCameraInput.click());
 
 function handleAvatarFile(file){
   if(!file)return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    cropImg.onload=()=>{
-      initCropState();
-      avatarPickStep.style.display="none";avatarCropStep.style.display="";
+  try{
+    const reader=new FileReader();
+    reader.onerror=()=>showBanner("⚠️ Couldn't read that photo. Please try a different one.");
+    reader.onload=ev=>{
+      cropImg.onerror=()=>showBanner("⚠️ That file couldn't be loaded as an image.");
+      cropImg.onload=()=>{
+        initCropState();
+        avatarPickStep.style.display="none";avatarCropStep.style.display="";
+      };
+      cropImg.src=ev.target.result;
     };
-    cropImg.src=ev.target.result;
-  };
-  reader.readAsDataURL(file);
+    reader.readAsDataURL(file);
+  }catch(err){
+    showBanner("⚠️ Couldn't open that photo: "+err.message);
+  }
 }
 avatarFileInput.addEventListener("change",e=>{handleAvatarFile(e.target.files[0]);avatarFileInput.value="";});
 avatarCameraInput.addEventListener("change",e=>{handleAvatarFile(e.target.files[0]);avatarCameraInput.value="";});
@@ -1007,27 +1052,31 @@ cropCanvasWrap.addEventListener("touchmove",e=>{
 cropCanvasWrap.addEventListener("touchend",e=>{if(e.touches.length<2)pinchStartDist=null;});
 
 function renderCroppedAvatarBlob(){
-  return new Promise(resolve=>{
-    const OUT=512;
-    const canvas=document.createElement("canvas");
-    canvas.width=OUT;canvas.height=OUT;
-    const ctx=canvas.getContext("2d");
-    ctx.save();
-    ctx.beginPath();ctx.arc(OUT/2,OUT/2,OUT/2,0,Math.PI*2);ctx.closePath();ctx.clip();
-    ctx.fillStyle="#fff";ctx.fillRect(0,0,OUT,OUT);
+  return new Promise((resolve,reject)=>{
+    try{
+      const OUT=512;
+      const canvas=document.createElement("canvas");
+      canvas.width=OUT;canvas.height=OUT;
+      const ctx=canvas.getContext("2d");
+      ctx.save();
+      ctx.beginPath();ctx.arc(OUT/2,OUT/2,OUT/2,0,Math.PI*2);ctx.closePath();ctx.clip();
+      ctx.fillStyle="#fff";ctx.fillRect(0,0,OUT,OUT);
 
-    const {w:sw,h:sh}=stageBox();
-    const stageSize=Math.min(sw,sh)||CROP_STAGE_SIZE;
-    const ratio=OUT/stageSize;
+      const {w:sw,h:sh}=stageBox();
+      const stageSize=Math.min(sw,sh)||CROP_STAGE_SIZE;
+      const ratio=OUT/stageSize;
 
-    ctx.translate(OUT/2,OUT/2);
-    ctx.translate(cropState.offX*ratio,cropState.offY*ratio);
-    ctx.rotate(cropState.rot*Math.PI/180);
-    ctx.scale(cropState.scale*ratio,cropState.scale*ratio);
-    ctx.drawImage(cropImg,-cropState.naturalW/2,-cropState.naturalH/2,cropState.naturalW,cropState.naturalH);
-    ctx.restore();
+      ctx.translate(OUT/2,OUT/2);
+      ctx.translate(cropState.offX*ratio,cropState.offY*ratio);
+      ctx.rotate(cropState.rot*Math.PI/180);
+      ctx.scale(cropState.scale*ratio,cropState.scale*ratio);
+      ctx.drawImage(cropImg,-cropState.naturalW/2,-cropState.naturalH/2,cropState.naturalW,cropState.naturalH);
+      ctx.restore();
 
-    canvas.toBlob(blob=>resolve(blob),"image/jpeg",0.92);
+      canvas.toBlob(blob=>{
+        if(blob)resolve(blob);else reject(new Error("Could not process image"));
+      },"image/jpeg",0.92);
+    }catch(err){reject(err);}
   });
 }
 
@@ -1210,16 +1259,22 @@ document.addEventListener("click",()=>emojiPanel.classList.remove("on"));
 emojiPanel.addEventListener("click",e=>e.stopPropagation());
 
 /* ══ VOICE NOTE ══ */
-function startRecording(){
+async function startRecording(){
   if(!me)return;
-  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+  const stream=await requestMediaAccess({audio:true},"Microphone");
+  if(!stream)return;
+  try{
     audioChunks=[];isRecording=true;recSeconds=0;
     mediaRecorder=new MediaRecorder(stream);mediaRecorder.start();
     mediaRecorder.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};
     mediaRecorder.onstop=()=>{stream.getTracks().forEach(t=>t.stop());if(audioChunks.length>0)uploadVoiceNote(new Blob(audioChunks,{type:"audio/webm"}));audioChunks=[];};
     micBtn.textContent="🛑";micBtn.classList.add("recording");recHud.classList.add("on");recTimer.textContent="0:00";
     recTimerInterval=setInterval(()=>{recSeconds++;recTimer.textContent=fmtSecs(recSeconds);},1000);
-  }).catch(()=>showBanner("❌ Microphone permission denied."));
+  }catch(err){
+    stream.getTracks().forEach(t=>t.stop());
+    isRecording=false;
+    showBanner("⚠️ Couldn't start recording: "+err.message+" (your browser may not support voice notes).");
+  }
 }
 function stopRecording(cancel=false){
   if(!isRecording||!mediaRecorder)return;
@@ -1668,12 +1723,17 @@ const vcEndBtn=$("vcEndBtn"),vcMuteBtn=$("vcMuteBtn"),vcCamBtn=$("vcCamBtn");
 const vcallBtn=$("vcallBtn");
 function vcShowScreen(w){vcIncoming.style.display="none";vcActive.style.display="none";vcCalling.style.display="none";if(w==="incoming")vcIncoming.style.display="flex";else if(w==="active")vcActive.style.display="flex";else if(w==="calling")vcCalling.style.display="flex";vcOverlay.classList.add("show");}
 function vcHideOverlay(){vcOverlay.classList.remove("show");clearInterval(vcTimerInt);if(vcActiveCall){try{vcActiveCall.close();}catch(e){}vcActiveCall=null;}if(vcLocalStream){vcLocalStream.getTracks().forEach(t=>t.stop());vcLocalStream=null;}if(vcLocalVideo)vcLocalVideo.srcObject=null;if(vcRemoteVideo)vcRemoteVideo.srcObject=null;vcallBtn.classList.remove("in-call");}
-async function vcGetMedia(){if(vcLocalStream)return vcLocalStream;vcLocalStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});return vcLocalStream;}
+async function vcGetMedia(){
+  if(vcLocalStream)return vcLocalStream;
+  const s=await requestMediaAccess({video:true,audio:true},"Camera & Microphone");
+  if(s)vcLocalStream=s;
+  return s;
+}
 function vcStartTimer(){vcSeconds=0;clearInterval(vcTimerInt);vcTimerInt=setInterval(()=>{vcSeconds++;vcTimerEl.textContent=fmtSecs(vcSeconds);},1000);}
 function handleIncomingVideoCall(call){
   const caller=me==="Aku"?"Billu":"Aku";const c=USER_COLORS[caller];
   vcIncomingAv.textContent=caller[0];vcIncomingAv.style.background=c.av;vcIncomingName.textContent=getNick(caller);vcShowScreen("incoming");
-  vcAnswerBtn.onclick=async()=>{const s=await vcGetMedia().catch(()=>{showBanner("Camera/mic denied");vcHideOverlay();return null;});if(!s)return;vcLocalVideo.srcObject=s;call.answer(s);vcActiveCall=call;vcActiveName.textContent=getNick(caller);call.on("stream",rs=>{vcRemoteVideo.srcObject=rs;vcShowScreen("active");vcStartTimer();vcallBtn.classList.add("in-call");});call.on("close",()=>{showBanner(getNick(caller)+" ended the video call");vcHideOverlay();});};
+  vcAnswerBtn.onclick=async()=>{const s=await vcGetMedia();if(!s){vcHideOverlay();return;}vcLocalVideo.srcObject=s;call.answer(s);vcActiveCall=call;vcActiveName.textContent=getNick(caller);call.on("stream",rs=>{vcRemoteVideo.srcObject=rs;vcShowScreen("active");vcStartTimer();vcallBtn.classList.add("in-call");});call.on("close",()=>{showBanner(getNick(caller)+" ended the video call");vcHideOverlay();});call.on("error",()=>{showBanner("⚠️ Video call connection failed.");vcHideOverlay();});};
   vcDeclineBtn.onclick=()=>{call.close();vcHideOverlay();};
 }
 function vcInitPeer(){
@@ -1686,11 +1746,13 @@ vcallBtn.addEventListener("click",async()=>{
   if(!me){showBanner("Please login first");return;}if(!vcPeer){showBanner("Call service initializing…");return;}
   const other=me==="Aku"?"Billu":"Aku";const c=USER_COLORS[other];
   vcCallingAv.textContent=other[0];vcCallingAv.style.background=c.av;vcCallingName.textContent=getNick(other);vcCallingSub.textContent="Ringing…";vcShowScreen("calling");
-  const s=await vcGetMedia().catch(()=>{showBanner("Camera/mic denied");vcHideOverlay();return null;});if(!s)return;
+  const s=await vcGetMedia();
+  if(!s){vcHideOverlay();return;}
   vcLocalVideo.srcObject=s;const call=vcPeer.call(VC_PEER_IDS[other],s);if(!call){showBanner(getNick(other)+" not available");vcHideOverlay();return;}
   vcActiveCall=call;
   call.on("stream",rs=>{vcRemoteVideo.srcObject=rs;vcActiveName.textContent=getNick(other);vcShowScreen("active");vcStartTimer();vcallBtn.classList.add("in-call");});
   call.on("close",()=>{showBanner(getNick(other)+" ended the call");vcHideOverlay();});
+  call.on("error",()=>{showBanner("⚠️ Video call connection failed.");vcHideOverlay();});
   const t=setTimeout(()=>{if(vcOverlay.classList.contains("show")&&vcActive.style.display==="none"){showBanner(getNick(other)+" didn't answer");vcHideOverlay();}},40000);
   call.on("stream",()=>clearTimeout(t));call.on("close",()=>clearTimeout(t));
 });
@@ -1711,12 +1773,17 @@ const acallBtn=$("acallBtn");
 const acRemoteAudio=document.createElement("audio");acRemoteAudio.autoplay=true;document.body.appendChild(acRemoteAudio);
 function acShowScreen(w){acIncoming.style.display="none";acActiveScr.style.display="none";acCallingScr.style.display="none";if(w==="incoming")acIncoming.style.display="flex";else if(w==="active")acActiveScr.style.display="flex";else if(w==="calling")acCallingScr.style.display="flex";acOverlay.classList.add("show");}
 function acHideOverlay(){acOverlay.classList.remove("show");clearInterval(acTimerInt);if(acActiveCall){try{acActiveCall.close();}catch(e){}acActiveCall=null;}if(acLocalStream){acLocalStream.getTracks().forEach(t=>t.stop());acLocalStream=null;}acRemoteAudio.srcObject=null;acallBtn.classList.remove("in-call");acMuted=false;acMuteBtn.textContent="🎙️";acMuteBtn.classList.remove("muted");if(acWaveEl)acWaveEl.classList.add("idle");}
-async function acGetMic(){if(acLocalStream)return acLocalStream;acLocalStream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});return acLocalStream;}
+async function acGetMic(){
+  if(acLocalStream)return acLocalStream;
+  const s=await requestMediaAccess({audio:true,video:false},"Microphone");
+  if(s)acLocalStream=s;
+  return s;
+}
 function acStartTimer(){acSecs=0;clearInterval(acTimerInt);acTimerInt=setInterval(()=>{acSecs++;acTimerEl.textContent=fmtSecs(acSecs);},1000);}
 function handleIncomingAudioCall(call){
   const caller=me==="Aku"?"Billu":"Aku";const c=USER_COLORS[caller];
   acIncomingAv.textContent=caller[0];acIncomingAv.style.background=c.av;acIncomingName.textContent=getNick(caller);acShowScreen("incoming");
-  acAnswerBtn.onclick=async()=>{const s=await acGetMic().catch(()=>{showBanner("Mic denied");acHideOverlay();return null;});if(!s)return;call.answer(s);acActiveCall=call;acActiveAv.textContent=caller[0];acActiveAv.style.background=c.av;acActiveName.textContent=getNick(caller);call.on("stream",rs=>{acRemoteAudio.srcObject=rs;if(acWaveEl)acWaveEl.classList.remove("idle");acShowScreen("active");acStartTimer();acallBtn.classList.add("in-call");});call.on("close",()=>{showBanner(getNick(caller)+" ended the voice call");acHideOverlay();});};
+  acAnswerBtn.onclick=async()=>{const s=await acGetMic();if(!s){acHideOverlay();return;}call.answer(s);acActiveCall=call;acActiveAv.textContent=caller[0];acActiveAv.style.background=c.av;acActiveName.textContent=getNick(caller);call.on("stream",rs=>{acRemoteAudio.srcObject=rs;if(acWaveEl)acWaveEl.classList.remove("idle");acShowScreen("active");acStartTimer();acallBtn.classList.add("in-call");});call.on("close",()=>{showBanner(getNick(caller)+" ended the voice call");acHideOverlay();});call.on("error",()=>{showBanner("⚠️ Voice call connection failed.");acHideOverlay();});};
   acDeclineBtn.onclick=()=>{call.close();acHideOverlay();};
 }
 function acInitPeer(){
@@ -1729,11 +1796,13 @@ acallBtn.addEventListener("click",async()=>{
   if(!me){showBanner("Please login first");return;}if(!acPeer){showBanner("Call service initializing…");return;}
   const other=me==="Aku"?"Billu":"Aku";const c=USER_COLORS[other];
   acCallingAv.textContent=other[0];acCallingAv.style.background=c.av;acCallingName.textContent=getNick(other);acCallingSub.textContent="Ringing…";acShowScreen("calling");
-  const s=await acGetMic().catch(()=>{showBanner("Mic denied");acHideOverlay();return null;});if(!s)return;
+  const s=await acGetMic();
+  if(!s){acHideOverlay();return;}
   const call=acPeer.call(AC_PEER_IDS[other],s);if(!call){showBanner(getNick(other)+" not available");acHideOverlay();return;}
   acActiveCall=call;
   call.on("stream",rs=>{acRemoteAudio.srcObject=rs;if(acWaveEl)acWaveEl.classList.remove("idle");acActiveAv.textContent=other[0];acActiveAv.style.background=c.av;acActiveName.textContent=getNick(other);acShowScreen("active");acStartTimer();acallBtn.classList.add("in-call");});
   call.on("close",()=>{showBanner(getNick(other)+" ended the call");acHideOverlay();});
+  call.on("error",()=>{showBanner("⚠️ Voice call connection failed.");acHideOverlay();});
   const t=setTimeout(()=>{if(acOverlay.classList.contains("show")&&acActiveScr.style.display==="none"){showBanner(getNick(other)+" didn't answer");acHideOverlay();}},40000);
   call.on("stream",()=>clearTimeout(t));call.on("close",()=>clearTimeout(t));
 });
