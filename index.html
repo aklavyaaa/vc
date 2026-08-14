@@ -482,11 +482,11 @@ db.ref("akchat/online").on("value",snap=>{onlineMap=snap.val()||{}; refreshPrese
 db.ref("akchat/lastSeen").on("value",snap=>{lastSeenMap=snap.val()||{}; refreshPresenceUI();});
 db.ref("akchat/displayNames").on("value",snap=>{displayNames=snap.val()||{}; if(contactsOpen)renderContacts(); if(chatOpen)applyHeaderNick(); refreshAllAvatarUI();});
 
-function nickFor(user){ return (displayNames && displayNames[user]) || "User"; }
+function nickFor(user){ return (displayNames && displayNames[user]) || "(no name set)"; }
 function avEl(el,user){
-  const url=avatars[user],label=nickFor(user);
-  if(url){el.innerHTML=`<img src="${url}" alt="${label}"/>`;el.style.background=colorFor(user);}
-  else{el.innerHTML="";el.textContent=(label||"?")[0].toUpperCase();el.style.background=colorFor(user);}
+  const url=avatars[user],name=displayNames[user],label=name?name:"?";
+  if(url){el.innerHTML=`<img src="${url}" alt="${nickFor(user)}"/>`;el.style.background=colorFor(user);}
+  else{el.innerHTML="";el.textContent=label[0].toUpperCase();el.style.background=colorFor(user);}
 }
 function refreshAllAvatarUI(){
   if(me) avEl($("cpMeAv"),me);
