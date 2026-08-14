@@ -296,9 +296,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sa
 <div class="nick-modal-overlay" id="nickModal">
   <div class="nick-modal">
     <div style="font-size:30px;margin-bottom:8px">✏️</div>
-    <h3>Edit Nickname</h3>
-    <p id="nickModalDesc">Set a nickname</p>
-    <input type="text" id="nickInput" maxlength="20" placeholder="Enter nickname…" autocomplete="off"/>
+    <h3>Your Display Name</h3>
+    <p id="nickModalDesc">This is the only name others will ever see — pick one</p>
+    <input type="text" id="nickInput" maxlength="20" placeholder="Enter a name…" autocomplete="off"/>
     <div class="two-btn">
       <button class="btn-secondary" id="nickCancelBtn">Cancel</button>
       <button class="btn-primary" id="nickSaveBtn">Save ✓</button>
@@ -347,13 +347,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sa
       <div class="cp-me-av" id="cpMeAv">🙂</div>
       <div>
         <div class="cp-title">Chats</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.6)" id="cpMeLabel"></div>
       </div>
     </div>
     <button class="cp-close" id="cpCloseBtn" title="Log out">✕</button>
   </div>
   <div class="cp-list" id="cpList"></div>
   <div class="cp-actions">
+    <button id="cpMyNameBtn">✏️ My name</button>
     <button id="cpMyAvatarBtn">📷 My photo</button>
     <button id="cpMyCodeBtn">🔑 My code</button>
   </div>
@@ -367,7 +367,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sa
     <button class="chat-back-btn" id="backBtn">‹</button>
     <div class="chat-av-wrap" id="headerAvWrap"><div class="chat-av" id="chatAv">💬</div><div class="av-status" id="otherStatus"></div></div>
     <div class="chat-header-info" id="headerInfo">
-      <div class="chat-header-name" id="chatHeaderName">Chat <span style="font-size:12px;opacity:.5">✏️</span></div>
+      <div class="chat-header-name" id="chatHeaderName">Chat</div>
       <div class="chat-header-sub" id="chatHeaderSub"></div>
     </div>
     <div class="chat-header-right">
@@ -451,7 +451,6 @@ let codes={};                        // {username: code}  -> also the master use
 let avatars={};                      // {username: url}
 let onlineMap={};                    // {username: true}
 let lastSeenMap={};                  // {username: ts}
-let myNicknames={};                  // {targetUser: nickname}  (set BY me, for others)
 let currentPeer=null;                // username of open conversation
 let currentConvId=null;
 let msgMap={};
@@ -460,6 +459,7 @@ let chatOpen=false, contactsOpen=false;
 let typingTimer=null;
 let mediaRecorder=null, audioChunks=[], isRecording=false, recTimerInterval=null, recSeconds=0;
 let codesReady=false;
+let displayNames={};                 // {username: displayName} — the ONLY name ever shown in the UI
 
 /* ---------- default seed codes (only used if DB is empty) ---------- */
 db.ref("akchat/codes").once("value").then(snap=>{
@@ -480,12 +480,13 @@ function waitForCodes(){
 db.ref("akchat/avatars").on("value",snap=>{avatars=snap.val()||{}; refreshAllAvatarUI();});
 db.ref("akchat/online").on("value",snap=>{onlineMap=snap.val()||{}; refreshPresenceUI();});
 db.ref("akchat/lastSeen").on("value",snap=>{lastSeenMap=snap.val()||{}; refreshPresenceUI();});
+db.ref("akchat/displayNames").on("value",snap=>{displayNames=snap.val()||{}; if(contactsOpen)renderContacts(); if(chatOpen)applyHeaderNick(); refreshAllAvatarUI();});
 
-function nickFor(user){ return (myNicknames && myNicknames[user]) || user; }
+function nickFor(user){ return (displayNames && displayNames[user]) || "User"; }
 function avEl(el,user){
-  const url=avatars[user];
-  if(url){el.innerHTML=`<img src="${url}" alt="${user}"/>`;el.style.background=colorFor(user);}
-  else{el.innerHTML="";el.textContent=(user||"?")[0];el.style.background=colorFor(user);}
+  const url=avatars[user],label=nickFor(user);
+  if(url){el.innerHTML=`<img src="${url}" alt="${label}"/>`;el.style.background=colorFor(user);}
+  else{el.innerHTML="";el.textContent=(label||"?")[0].toUpperCase();el.style.background=colorFor(user);}
 }
 function refreshAllAvatarUI(){
   if(me) avEl($("cpMeAv"),me);
@@ -527,7 +528,6 @@ async function doLogin(){
   if(!user){modalError.style.display="block";codeInput.value="";codeInput.focus();return;}
   me=user;
   closeModal();
-  db.ref("akchat/nicknames/"+me).on("value",snap=>{myNicknames=snap.val()||{}; if(contactsOpen)renderContacts(); if(chatOpen)applyHeaderNick();});
   setOnline(true);
   vcInitPeer(); acInitPeer();
   openContacts();
@@ -555,7 +555,6 @@ function openContacts(){
   contactsBackdrop.classList.add("active");
   $("chatPill").classList.remove("on");
   avEl($("cpMeAv"),me);
-  $("cpMeLabel").textContent="You: "+me;
   renderContacts();
 }
 function closeContactsFully(){
@@ -563,7 +562,6 @@ function closeContactsFully(){
   contactsPanel.classList.remove("active");
   contactsBackdrop.classList.remove("active");
   detachConversation();
-  db.ref("akchat/nicknames/"+me).off();
   setOnline(false);
   me=null;
 }
@@ -596,33 +594,30 @@ function renderContacts(){
 $("cpMyAvatarBtn").addEventListener("click",openAvatarModal);
 $("cpMyCodeBtn").addEventListener("click",openChcodeModal);
 
-/* ============ NICKNAME MODAL ============ */
+/* ============ DISPLAY NAME MODAL (self only — this is the only name shown anywhere) ============ */
 const nickModal=$("nickModal"),nickInput=$("nickInput"),nickModalDesc=$("nickModalDesc");
-let nickTarget=null;
-function openNickModal(user){
-  nickTarget=user; nickModalDesc.textContent="Set a nickname for "+user;
-  nickInput.value=nickFor(user)===user?"":nickFor(user);
+function openNickModal(){
+  if(!me)return;
+  nickInput.value=displayNames[me]||"";
   nickModal.classList.add("active");
   setTimeout(()=>{nickInput.focus();nickInput.select();},80);
 }
-function closeNickModal(){nickModal.classList.remove("active");nickTarget=null;}
+function closeNickModal(){nickModal.classList.remove("active");}
 function saveNick(){
-  const val=nickInput.value.trim(); if(!nickTarget)return;
-  if(val) db.ref("akchat/nicknames/"+me+"/"+nickTarget).set(val).catch(e=>showBanner("Save failed: "+e.message));
-  else db.ref("akchat/nicknames/"+me+"/"+nickTarget).remove().catch(()=>{});
-  closeNickModal();
+  const val=nickInput.value.trim(); if(!me||!val)return;
+  db.ref("akchat/displayNames/"+me).set(val).then(closeNickModal).catch(e=>showBanner("Save failed: "+e.message));
 }
 $("nickSaveBtn").addEventListener("click",saveNick);
 $("nickCancelBtn").addEventListener("click",closeNickModal);
 nickInput.addEventListener("keydown",e=>{if(e.key==="Enter")saveNick();if(e.key==="Escape")closeNickModal();});
 nickModal.addEventListener("click",e=>{if(e.target===nickModal)closeNickModal();});
-$("headerInfo").addEventListener("click",()=>{ if(currentPeer) openNickModal(currentPeer); });
+$("cpMyNameBtn").addEventListener("click",openNickModal);
 
 /* ============ CHANGE CODE MODAL ============ */
 const chcodeModal=$("chcodeModal"),chcodeOld=$("chcodeOld"),chcodeNew=$("chcodeNew"),chcodeConfirm=$("chcodeConfirm"),chcodeError=$("chcodeError");
 function openChcodeModal(){
   if(!me)return;
-  $("chcodeWho").textContent=me;
+  $("chcodeWho").textContent=nickFor(me);
   chcodeOld.value="";chcodeNew.value="";chcodeConfirm.value="";chcodeError.style.display="none";
   chcodeModal.classList.add("active");
   setTimeout(()=>chcodeOld.focus(),80);
@@ -681,7 +676,7 @@ const chatHeaderName=$("chatHeaderName"),chatHeaderSub=$("chatHeaderSub"),typing
 const unreadBadge=$("unreadBadge"),chatPill=$("chatPill");
 
 function applyHeaderNick(){
-  chatHeaderName.innerHTML=nickFor(currentPeer)+' <span style="font-size:12px;opacity:.5">✏️</span>';
+  chatHeaderName.textContent=nickFor(currentPeer);
 }
 function openConversation(user){
   // Enforcement: non-admin users may only open a conversation with the admin.
@@ -1027,7 +1022,7 @@ function vcInitPeer(){
 }
 function handleIncomingVideoCall(call){
   const caller=call.metadata?.from||"Unknown";
-  $("vcIncomingAv").textContent=caller[0]; $("vcIncomingAv").style.background=colorFor(caller); $("vcIncomingName").textContent=nickFor(caller);
+  $("vcIncomingAv").textContent=nickFor(caller)[0].toUpperCase(); $("vcIncomingAv").style.background=colorFor(caller); $("vcIncomingName").textContent=nickFor(caller);
   vcShowScreen("incoming");
   $("vcAnswerBtn").onclick=async()=>{
     const s=await vcGetMedia(); if(!s){vcHideOverlay();return;}
@@ -1042,7 +1037,7 @@ $("vcallBtn").addEventListener("click",async()=>{
   if(!me||!currentPeer){showBanner("Open a chat first");return;}
   if(!vcPeer){showBanner("Call service initializing…");return;}
   const other=currentPeer;
-  $("vcCallingAv").textContent=other[0]; $("vcCallingAv").style.background=colorFor(other); $("vcCallingName").textContent=nickFor(other);
+  $("vcCallingAv").textContent=nickFor(other)[0].toUpperCase(); $("vcCallingAv").style.background=colorFor(other); $("vcCallingName").textContent=nickFor(other);
   vcShowScreen("calling");
   const s=await vcGetMedia(); if(!s){vcHideOverlay();return;}
   vcLocalVideo.srcObject=s;
@@ -1076,11 +1071,11 @@ function acInitPeer(){
 }
 function handleIncomingAudioCall(call){
   const caller=call.metadata?.from||"Unknown";
-  $("acIncomingAv").textContent=caller[0]; $("acIncomingAv").style.background=colorFor(caller); $("acIncomingName").textContent=nickFor(caller);
+  $("acIncomingAv").textContent=nickFor(caller)[0].toUpperCase(); $("acIncomingAv").style.background=colorFor(caller); $("acIncomingName").textContent=nickFor(caller);
   acShowScreen("incoming");
   $("acAnswerBtn").onclick=async()=>{
     const s=await acGetMic(); if(!s){acHideOverlay();return;}
-    call.answer(s); acActiveCall=call; $("acActiveAv").textContent=caller[0]; $("acActiveAv").style.background=colorFor(caller); $("acActiveName").textContent=nickFor(caller);
+    call.answer(s); acActiveCall=call; $("acActiveAv").textContent=nickFor(caller)[0].toUpperCase(); $("acActiveAv").style.background=colorFor(caller); $("acActiveName").textContent=nickFor(caller);
     call.on("stream",rs=>{ acRemoteAudio.srcObject=rs; $("acWave").classList.remove("idle"); acShowScreen("active"); acStartTimer(); $("acallBtn").classList.add("in-call"); });
     call.on("close",()=>{ showBanner(nickFor(caller)+" ended the voice call"); acHideOverlay(); });
     call.on("error",()=>{ showBanner("⚠️ Voice call failed."); acHideOverlay(); });
@@ -1091,13 +1086,13 @@ $("acallBtn").addEventListener("click",async()=>{
   if(!me||!currentPeer){showBanner("Open a chat first");return;}
   if(!acPeer){showBanner("Call service initializing…");return;}
   const other=currentPeer;
-  $("acCallingAv").textContent=other[0]; $("acCallingAv").style.background=colorFor(other); $("acCallingName").textContent=nickFor(other);
+  $("acCallingAv").textContent=nickFor(other)[0].toUpperCase(); $("acCallingAv").style.background=colorFor(other); $("acCallingName").textContent=nickFor(other);
   acShowScreen("calling");
   const s=await acGetMic(); if(!s){acHideOverlay();return;}
   const call=acPeer.call(acPeerId(other),s,{metadata:{from:me}});
   if(!call){ showBanner(nickFor(other)+" not available"); acHideOverlay(); return; }
   acActiveCall=call;
-  call.on("stream",rs=>{ acRemoteAudio.srcObject=rs; $("acWave").classList.remove("idle"); $("acActiveAv").textContent=other[0]; $("acActiveAv").style.background=colorFor(other); $("acActiveName").textContent=nickFor(other); acShowScreen("active"); acStartTimer(); $("acallBtn").classList.add("in-call"); });
+  call.on("stream",rs=>{ acRemoteAudio.srcObject=rs; $("acWave").classList.remove("idle"); $("acActiveAv").textContent=nickFor(other)[0].toUpperCase(); $("acActiveAv").style.background=colorFor(other); $("acActiveName").textContent=nickFor(other); acShowScreen("active"); acStartTimer(); $("acallBtn").classList.add("in-call"); });
   call.on("close",()=>{ showBanner(nickFor(other)+" ended the call"); acHideOverlay(); });
   call.on("error",()=>{ showBanner("⚠️ Voice call failed."); acHideOverlay(); });
   const t=setTimeout(()=>{ if(acOverlay.classList.contains("show")&&acActiveScr.style.display==="none"){ showBanner(nickFor(other)+" didn't answer"); acHideOverlay(); } },40000);
