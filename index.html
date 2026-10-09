@@ -1101,5 +1101,347 @@ $("acallBtn").addEventListener("click",async()=>{
 $("acCancelBtn").onclick=()=>acHideOverlay(); $("acEndBtn").onclick=()=>acHideOverlay();
 $("acMuteBtn").addEventListener("click",()=>{ if(!acLocalStream)return; acMuted=!acMuted; acLocalStream.getAudioTracks().forEach(t=>t.enabled=!acMuted); $("acMuteBtn").textContent=acMuted?"🔇":"🎙️"; $("acMuteBtn").classList.toggle("muted",acMuted); });
 </script>
+
+<!-- ================= SHOPIFY LIVE + RESIZABLE PANELS ================= -->
+<style>
+/* ---- fake Shopify pages ---- */
+.content{scroll-behavior:auto;transition:opacity .28s ease;}
+.pg-title{font-size:20px;font-weight:700;margin-bottom:12px;}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px;}
+.stat{background:#fff;border:1px solid #e1e3e5;border-radius:10px;padding:12px 14px;}
+.stat small{display:block;font-size:11px;color:#6d7175;margin-bottom:5px;}
+.stat b{font-size:20px;}
+.stat i{font-style:normal;font-size:11px;color:#008060;margin-left:6px;}
+table.tbl{width:100%;border-collapse:collapse;font-size:12px;}
+.tbl th{text-align:left;font-weight:600;color:#6d7175;padding:9px 15px;border-bottom:1px solid #e1e3e5;background:#fafbfb;white-space:nowrap;}
+.tbl td{padding:10px 15px;border-bottom:1px solid #f0f1f2;white-space:nowrap;}
+.tbl tr{transition:background .3s;}
+.tbl tr.hl{background:#f1f8f5;}
+.tbl td.r,.tbl th.r{text-align:right;}
+.tbl-wrap{overflow-x:auto;}
+.pill{padding:2px 8px;border-radius:100px;font-size:11px;font-weight:600;display:inline-block;}
+.p-g{background:#cdfed4;color:#0c5132;}.p-y{background:#fff3c4;color:#916a00;}.p-o{background:#ffd79d;color:#7b4a00;}.p-b{background:#e0f0ff;color:#00527c;}.p-x{background:#e4e5e7;color:#4a4a4a;}
+.bars{display:flex;align-items:flex-end;gap:10px;height:170px;padding:16px 15px 8px;}
+.bars div{flex:1;background:linear-gradient(#5c6ac4,#8c97e6);border-radius:5px 5px 0 0;position:relative;min-width:10px;}
+.bars div span{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:10px;color:#6d7175;}
+.bars-wrap{padding-bottom:22px;}
+.tl{padding:6px 15px 12px;}
+.tl-item{display:flex;gap:10px;padding:8px 0;font-size:12px;border-bottom:1px solid #f5f5f5;}
+.tl-item:last-child{border-bottom:none;}
+.tl-dot{width:9px;height:9px;border-radius:50%;background:#8c9196;margin-top:4px;flex-shrink:0;}
+.tl-item small{color:#8c9196;display:block;margin-top:2px;}
+.setting-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;}
+.setting{background:#fff;border:1px solid #e1e3e5;border-radius:10px;padding:14px;font-size:12px;}
+.setting b{display:block;font-size:13px;margin-bottom:4px;}
+.setting span{color:#6d7175;}
+.card-pad{padding:12px 15px;font-size:12px;color:#555;line-height:1.7;}
+/* ---- auto dummy dialogs ---- */
+.sd-overlay{position:fixed;top:96px;bottom:0;left:0;right:0;z-index:400;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;opacity:0;pointer-events:none!important;transition:opacity .22s ease,padding .2s ease;}
+.sd-overlay *{pointer-events:none!important;}
+.sd-overlay.on{opacity:1;}
+.sd-box{background:#fff;border-radius:12px;width:min(440px,92vw);box-shadow:0 10px 40px rgba(0,0,0,.28);border:1px solid #e1e3e5;transform:translateY(14px) scale(.98);transition:transform .22s ease;overflow:hidden;}
+.sd-overlay.on .sd-box{transform:none;}
+.sd-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #e1e3e5;font-size:14px;}
+.sd-x{cursor:pointer;color:#6d7175;}
+.sd-desc{padding:12px 18px 2px;font-size:12px;color:#6d7175;}
+.sd-fields{padding:8px 18px 4px;}
+.sd-field{margin:10px 0;}
+.sd-field label{display:block;font-size:12px;font-weight:600;margin-bottom:5px;}
+.sd-input{border:1.5px solid #c9cccf;border-radius:8px;padding:9px 11px;font-size:13px;min-height:36px;background:#fff;}
+.sd-input.active{border-color:#008060;box-shadow:0 0 0 2px rgba(0,128,96,.18);}
+.sd-caret{display:inline-block;width:1px;height:14px;background:#202223;margin-left:1px;vertical-align:-2px;animation:sdBlink 1s steps(1) infinite;}
+@keyframes sdBlink{50%{opacity:0;}}
+.sd-foot{display:flex;justify-content:flex-end;gap:8px;padding:12px 18px 16px;}
+.sd-foot button{border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid #c9cccf;background:#fff;transition:transform .12s,filter .12s;}
+.sd-foot .sd-ok{background:#008060;color:#fff;border-color:#008060;}
+.sd-foot .sd-ok.press{transform:scale(.94);filter:brightness(.88);}
+.sd-toast{position:fixed;top:58px;left:50%;transform:translate(-50%,-10px);background:#202223;color:#fff;padding:9px 16px;border-radius:8px;font-size:12px;font-weight:600;z-index:590;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;}
+.sd-toast.on{opacity:1;transform:translate(-50%,0);}
+/* ---- resizable panels ---- */
+.rs-h{position:absolute;z-index:6;touch-action:none;}
+.rs-t{top:0;left:14px;right:0;height:7px;cursor:ns-resize;}
+.rs-l{left:0;top:14px;bottom:0;width:7px;cursor:ew-resize;}
+.rs-tl{top:0;left:0;width:14px;height:14px;cursor:nwse-resize;}
+.rs-h:hover{background:rgba(255,255,255,.18);}
+body.rs-dragging{user-select:none;-webkit-user-select:none;}
+body.rs-dragging *{cursor:inherit!important;}
+@media(max-width:600px){.rs-h{display:none;}}
+</style>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+
+/* =====================================================
+   1) FAKE SHOPIFY PAGES — auto scroll + auto page switching
+   ===================================================== */
+const content=document.querySelector('.content');
+const sideItems=Array.from(document.querySelectorAll('.sidebar-item'));
+const tabEl=document.querySelector('.tab.active');
+const addrEl=document.querySelector('.address-bar');
+const badge=document.querySelector('.sidebar-badge');
+const originalOrderHTML=content.innerHTML;   // your existing order #5837 card
+const BASE='https://admin.shopify.com/store/ejaastore/';
+
+const names=['Aarav Mehta','Riya Sharma','Kabir Singh','Ananya Iyer','Vihaan Gupta','Diya Nair','Arjun Verma','Meera Joshi','Rohan Kapoor','Sana Khan','Ishaan Reddy','Tara Bansal','Nikhil Rao','Pooja Desai','Yash Malhotra','Kiara Sethi'];
+const cities=['Mumbai','Delhi','Jaipur','Bengaluru','Pune','Lucknow','Kolkata','Hyderabad','Chandigarh','Agra','Ahmedabad','Surat'];
+const prods=[['Saanjh Silver Tilhari — Oxidised (Black)','TH-2',4050],['Noor Silver Jhumka','JH-7',2890],['Mehr Kundan Choker','CH-3',5600],['Ira Silver Anklet (Pair)','AN-1',1750],['Zaina Polki Studs','ST-9',3200],['Rudra Silver Kada','KD-4',6400],['Aarna Temple Necklace','NK-12',7800],['Kiran Oxidised Nosepin','NP-5',650],['Veda Silver Mangalsutra','MS-2',5100],['Sitara Layered Chain','CN-8',2300],['Anaya Meenakari Bangles','BG-6',3900],['Zoya Silver Toe Rings','TR-3',899],['Ojas Silver Bracelet','BR-10',2750],['Leela Pearl Drops','PD-4',1990]];
+const fmt=n=>'₹'+n.toLocaleString('en-IN')+'.00';
+const pill=(t,c)=>`<span class="pill p-${c}">${t}</span>`;
+
+function ordersRows(){
+  const pay=[['Paid','g'],['Payment pending','y'],['Paid','g'],['Paid','g'],['Refunded','x']];
+  const ful=[['Fulfilled','g'],['Unfulfilled','o'],['Fulfilled','g'],['In transit','b'],['Unfulfilled','o']];
+  let h='';
+  for(let i=0;i<18;i++){
+    const p=prods[i%prods.length],n=5836-i,pp=pay[i%5],ff=ful[(i+2)%5];
+    h+=`<tr><td><b>#${n}</b></td><td>Jun ${18-Math.floor(i/3)}</td><td>${names[i%names.length]}</td><td>${pill(pp[0],pp[1])}</td><td>${pill(ff[0],ff[1])}</td><td>${p[2]>0?1+(i%3===0?1:0):1} item${i%3===0?'s':''}</td><td class="r">${fmt(p[2]*(i%3===0?2:1))}</td></tr>`;
+  }
+  return h;
+}
+function timeline(){
+  const t=[['Order confirmation email was sent to the customer','12:05 am'],['Order placed via import (COD)','12:05 am'],['Payment pending — awaiting COD confirmation','12:06 am'],['Shipping label purchased','Draft'],['Customer viewed order status page','12:41 am'],['Inventory reserved for TH-2','12:05 am'],['Fraud analysis completed: low risk','12:06 am'],['Staff note added','1:12 am']];
+  return t.map(x=>`<div class="tl-item"><div class="tl-dot"></div><div>${x[0]}<small>${x[1]}</small></div></div>`).join('');
+}
+
+const pages=[
+ {side:0,tab:'Home',path:'',crumb:'🏠 Home',html:()=>`
+  <div class="breadcrumb">🏠 › Home</div><div class="pg-title">Home</div>
+  <div class="stats">
+   <div class="stat"><small>Total sales</small><b data-live="82450" data-money="1">₹82,450</b><i>▲ 12%</i></div>
+   <div class="stat"><small>Orders</small><b data-live="27">27</b><i>▲ 4%</i></div>
+   <div class="stat"><small>Online store sessions</small><b data-live="1342">1,342</b><i>▲ 9%</i></div>
+   <div class="stat"><small>Conversion rate</small><b>2.03%</b><i>▲ 0.2%</i></div>
+  </div>
+  <div class="card"><div class="card-header">📈 Sales over time</div><div class="bars-wrap"><div class="bars">${[40,62,55,78,48,90,70,84,58,95,66,88].map((h,i)=>`<div style="height:${h}%"><span>${i+1}</span></div>`).join('')}</div></div></div>
+  <div class="card"><div class="card-header">🕑 Recent activity</div><div class="tl">${timeline()}</div></div>
+  <div class="card"><div class="card-header">✅ Setup guide</div><div class="card-pad">Add your first product ✓<br>Customize your theme ✓<br>Add a custom domain ✓<br>Set up shipping rates ✓<br>Test a COD order ✓<br>Launch a discount campaign — in progress</div></div>`},
+ {side:1,tab:'Orders',path:'orders',crumb:'📋 Orders',html:()=>`
+  <div class="breadcrumb">📋 › Orders</div><div class="pg-title">Orders</div>
+  <div class="stats">
+   <div class="stat"><small>Orders today</small><b data-live="27">27</b></div>
+   <div class="stat"><small>Items ordered</small><b>41</b></div>
+   <div class="stat"><small>Orders fulfilled</small><b>19</b></div>
+   <div class="stat"><small>Pending payment</small><b>6</b></div>
+  </div>
+  <div class="card"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Order</th><th>Date</th><th>Customer</th><th>Payment</th><th>Fulfillment</th><th>Items</th><th class="r">Total</th></tr></thead><tbody>${ordersRows()}</tbody></table></div></div>`},
+ {side:1,tab:'Orders · #5837',path:'orders/7303512555798',crumb:'#5837',html:()=>`${originalOrderHTML}
+  <div class="card"><div class="card-header">👤 Customer</div><div class="card-pad"><b>${names[0]}</b><br>${cities[8]}, India<br>1 order · ${fmt(4050)} spent<br>COD · Standard shipping</div></div>
+  <div class="card"><div class="card-header">🕑 Timeline</div><div class="tl">${timeline()}</div></div>`},
+ {side:2,tab:'Products',path:'products',crumb:'📌 Products',html:()=>`
+  <div class="breadcrumb">📌 › Products</div><div class="pg-title">Products</div>
+  <div class="card"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Product</th><th>Status</th><th>SKU</th><th>Inventory</th><th class="r">Price</th></tr></thead><tbody>${prods.concat(prods).map((p,i)=>`<tr><td>💍 ${p[0]}</td><td>${pill(i%7===5?'Draft':'Active',i%7===5?'x':'g')}</td><td>${p[1]}</td><td>${(i*7+9)%40+2} in stock</td><td class="r">${fmt(p[2])}</td></tr>`).join('')}</tbody></table></div></div>`},
+ {side:3,tab:'Customers',path:'customers',crumb:'👤 Customers',html:()=>`
+  <div class="breadcrumb">👤 › Customers</div><div class="pg-title">Customers</div>
+  <div class="stats"><div class="stat"><small>Total customers</small><b>2,314</b></div><div class="stat"><small>Returning</small><b>38%</b></div><div class="stat"><small>New this week</small><b data-live="64">64</b></div></div>
+  <div class="card"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Name</th><th>Location</th><th>Orders</th><th class="r">Amount spent</th></tr></thead><tbody>${names.concat(names).map((n,i)=>`<tr><td>${n}</td><td>${cities[(i*5)%cities.length]}, India</td><td>${1+(i*3)%6} orders</td><td class="r">${fmt(((i*1370)%15000)+1200)}</td></tr>`).join('')}</tbody></table></div></div>`},
+ {side:4,tab:'Growth',path:'marketing',crumb:'📈 Growth',html:()=>`
+  <div class="breadcrumb">📈 › Growth</div><div class="pg-title">Marketing campaigns</div>
+  <div class="card"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Campaign</th><th>Channel</th><th>Status</th><th>Sessions</th><th class="r">Sales</th></tr></thead><tbody>${[['Diwali Silver Edit','Instagram'],['Festive Free Shipping','Email'],['Tilhari Launch','Google'],['Bridal Season','Facebook'],['Winter Layering','Email'],['Gifting Guide','Instagram'],['COD Reminder Flow','WhatsApp'],['Abandoned Cart','Email']].map((c,i)=>`<tr><td>${c[0]}</td><td>${c[1]}</td><td>${pill(i%3===2?'Paused':'Active',i%3===2?'x':'g')}</td><td>${(i*431)%3000+400}</td><td class="r">${fmt((i*5300)%40000+3000)}</td></tr>`).join('')}</tbody></table></div></div>
+  <div class="card"><div class="card-header">🎯 Audience</div><div class="card-pad">Returning buyers · Cart abandoners · Jewellery enthusiasts · COD customers · Lookalike 1%</div></div>`},
+ {side:5,tab:'Analytics',path:'analytics',crumb:'📊 Analytics',html:()=>`
+  <div class="breadcrumb">📊 › Analytics</div><div class="pg-title">Analytics</div>
+  <div class="stats"><div class="stat"><small>Sessions</small><b data-live="9821">9,821</b><i>▲ 6%</i></div><div class="stat"><small>Average order value</small><b>₹3,214</b><i>▲ 3%</i></div><div class="stat"><small>Returning rate</small><b>38%</b></div></div>
+  <div class="card"><div class="card-header">📊 Sales by month</div><div class="bars-wrap"><div class="bars">${[35,48,52,44,70,82,64,91,77,58,86,97].map((h,i)=>`<div style="height:${h}%"><span>${'JFMAMJJASOND'[i]}</span></div>`).join('')}</div></div></div>
+  <div class="card"><div class="card-header">🏆 Top products</div><div class="tbl-wrap"><table class="tbl"><tbody>${prods.slice(0,8).map((p,i)=>`<tr><td>${p[0]}</td><td class="r">${60-i*6} sold</td><td class="r">${fmt(p[2]*(60-i*6))}</td></tr>`).join('')}</tbody></table></div></div>`},
+ {side:6,tab:'Settings',path:'settings',crumb:'⚙️ Settings',html:()=>`
+  <div class="breadcrumb">⚙️ › Settings</div><div class="pg-title">Settings</div>
+  <div class="setting-grid">${[['Store details','Name, contact, address'],['Plan','Shopify · Basic'],['Billing','Invoices and payment method'],['Users and permissions','3 staff accounts'],['Payments','COD, Razorpay, UPI'],['Checkout','Customer accounts and forms'],['Shipping and delivery','Zones and rates'],['Taxes and duties','GST settings'],['Locations','1 location'],['Notifications','Order and staff emails'],['Domains','ejaa.in'],['Policies','Refund, privacy, terms']].map(s=>`<div class="setting"><b>${s[0]}</b><span>${s[1]}</span></div>`).join('')}</div>`}
+];
+
+let idx=0, phase='top', phaseT=0, pos=0, pausedUntil=0, busy=false, lastT=performance.now();
+let dlgOpen=false, dlgTimer=null, dlgRun=0;
+const SPEED=38, TOP_WAIT=2500, BOTTOM_WAIT=2200, SHORT_DWELL=8000;
+
+function show(i){
+  closeDialog(); clearTimeout(dlgTimer);
+  idx=(i+pages.length)%pages.length;
+  const p=pages[idx];
+  content.innerHTML=p.html();
+  content.scrollTop=0; pos=0; phase='top'; phaseT=0; busy=false;
+  sideItems.forEach((s,k)=>s.classList.toggle('active',k===p.side));
+  tabEl.innerHTML='🛒 EJAA · '+p.tab+' <span>✕</span>';
+  addrEl.textContent='🔒 '+BASE+p.path;
+  document.title='EJAA - '+p.tab+' · Shopify';
+  content.style.opacity=1;
+  if(Math.random()<0.75) dlgTimer=setTimeout(openDialog,3000+Math.random()*3500);
+}
+function go(i){
+  if(busy)return; busy=true; closeDialog(); clearTimeout(dlgTimer);
+  content.style.opacity=0;
+  setTimeout(()=>show(i),280);
+}
+sideItems.forEach((s,k)=>s.addEventListener('click',()=>{
+  const t=pages.findIndex(p=>p.side===k); if(t>=0){pausedUntil=0;go(t);}
+}));
+['wheel','touchstart','pointerdown'].forEach(ev=>content.addEventListener(ev,()=>{pausedUntil=performance.now()+8000;},{passive:true}));
+
+function frame(now){
+  const dt=Math.min(now-lastT,100); lastT=now;
+  if(!document.hidden && !busy){
+    if(now<pausedUntil){ pos=content.scrollTop; }
+    else{
+      phaseT+=dt;
+      const max=content.scrollHeight-content.clientHeight;
+      if(phase==='top'){
+        if(max>24){ if(phaseT>TOP_WAIT){phase='down';phaseT=0;} }
+        else if(phaseT>SHORT_DWELL) go(idx+1);
+      }else if(phase==='down'){
+        pos+=SPEED*dt/1000;
+        if(pos>=max){pos=max;phase='bottom';phaseT=0;}
+        content.scrollTop=pos;
+      }else if(phase==='bottom'){
+        if(phaseT>BOTTOM_WAIT) go(idx+1);
+      }
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+/* little "alive" touches: live counters, row highlight, order badge */
+setInterval(()=>{
+  content.querySelectorAll('[data-live]').forEach(el=>{
+    const v=parseFloat(el.dataset.live)+Math.floor(Math.random()*4);
+    el.dataset.live=v;
+    el.textContent=(el.dataset.money?'₹':'')+Math.round(v).toLocaleString('en-IN');
+  });
+},3500);
+setInterval(()=>{
+  const rows=content.querySelectorAll('.tbl tbody tr'); if(!rows.length)return;
+  rows.forEach(r=>r.classList.remove('hl'));
+  const vis=Array.from(rows).filter(r=>{const b=r.getBoundingClientRect(),c=content.getBoundingClientRect();return b.top>c.top&&b.bottom<c.bottom;});
+  if(vis.length) vis[Math.floor(Math.random()*vis.length)].classList.add('hl');
+},1300);
+(function bump(){
+  setTimeout(()=>{
+    if(badge){const n=parseInt(badge.textContent.replace(/,/g,''))+1; badge.textContent=n.toLocaleString('en-IN');}
+    bump();
+  },25000+Math.random()*30000);
+})();
+
+/* ---------- auto dummy dialogs (typed + clicked by itself) ---------- */
+const DLGS={
+ 'Home':[{t:'Create discount code',d:'Customers can use this code at checkout.',f:[['Discount code','DIWALI15'],['Value (%)','15']],b:'Save discount',toast:'Discount code DIWALI15 created'}],
+ 'Orders':[{t:'Export orders',d:'Export 18 orders to a file.',f:[['Export as','CSV for Excel'],['Orders','Current page']],b:'Export orders',toast:'Export started — we will email you'}],
+ 'Orders · #5837':[
+  {t:'Mark items as fulfilled',d:'Saanjh Silver Tilhari × 1',f:[['Tracking number','DL7730412988IN'],['Carrier','Delhivery']],b:'Fulfill item',toast:'Item marked as fulfilled'},
+  {t:'Add note to order',d:'Notes are only visible to staff.',f:[['Note','Call customer to confirm COD before dispatch']],b:'Save note',toast:'Note saved'}],
+ 'Products':[{t:'Edit price',d:'Noor Silver Jhumka',f:[['Price (₹)','2,890.00'],['Compare-at price (₹)','3,400.00']],b:'Save',toast:'Product updated'}],
+ 'Customers':[{t:'Send email to customer',d:'To: riya.sharma@example.com',f:[['Subject','Your order is on its way'],['Message','Thank you for shopping with EJAA!']],b:'Send email',toast:'Email sent'}],
+ 'Growth':[{t:'Create campaign',d:'Plan a new marketing activity.',f:[['Campaign name','Winter Layering Edit'],['Channel','Instagram']],b:'Create campaign',toast:'Campaign created'}],
+ 'Analytics':[{t:'Select date range',d:'Compare with previous period.',f:[['From','Jun 1, 2026'],['To','Jun 18, 2026']],b:'Apply',toast:'Report updated'}],
+ 'Settings':[{t:'Unsaved changes',d:'Save your changes before leaving this page?',f:[],b:'Save',toast:'Settings saved'}]
+};
+const sdOv=document.createElement('div'); sdOv.className='sd-overlay';
+sdOv.innerHTML='<div class="sd-box"><div class="sd-head"><b></b><span class="sd-x">✕</span></div><p class="sd-desc"></p><div class="sd-fields"></div><div class="sd-foot"><button class="sd-cancel">Cancel</button><button class="sd-ok"></button></div></div>';
+document.body.appendChild(sdOv);
+const sdToast=document.createElement('div'); sdToast.className='sd-toast'; document.body.appendChild(sdToast);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function placeDlg(){
+  const open=[$('chatPanel'),$('contactsPanel')].find(p=>p&&p.classList.contains('active'));
+  const w=(open&&window.innerWidth>600)?open.getBoundingClientRect().width+32:16;
+  sdOv.style.paddingRight=w+'px';
+}
+setInterval(()=>{ if(dlgOpen) placeDlg(); },400);
+function closeDialog(){ dlgRun++; sdOv.classList.remove('on'); dlgOpen=false; }
+async function openDialog(){
+  if(dlgOpen||busy||document.hidden) return;
+  const list=DLGS[pages[idx].tab]; if(!list) return;
+  const d=list[Math.floor(Math.random()*list.length)];
+  const pn=[$('chatPanel'),$('contactsPanel')].find(p=>p&&p.classList.contains('active'));
+  if(pn&&window.innerWidth<=600) return;   // phone: panel is full screen, skip dialogs
+  const run=++dlgRun; dlgOpen=true; placeDlg();
+  sdOv.querySelector('.sd-head b').textContent=d.t;
+  sdOv.querySelector('.sd-desc').textContent=d.d;
+  sdOv.querySelector('.sd-ok').textContent=d.b;
+  const box=sdOv.querySelector('.sd-fields'); box.innerHTML='';
+  const inputs=d.f.map(f=>{
+    const w=document.createElement('div'); w.className='sd-field';
+    const l=document.createElement('label'); l.textContent=f[0];
+    const i=document.createElement('div'); i.className='sd-input';
+    w.appendChild(l); w.appendChild(i); box.appendChild(w); return i;
+  });
+  sdOv.classList.add('on');
+  const alive=()=>run===dlgRun;
+  await sleep(800); if(!alive())return;
+  for(let k=0;k<inputs.length;k++){
+    const el=inputs[k], txt=d.f[k][1];
+    el.classList.add('active');
+    for(let c=1;c<=txt.length;c++){
+      el.innerHTML=''; el.append(document.createTextNode(txt.slice(0,c)));
+      const caret=document.createElement('span'); caret.className='sd-caret'; el.appendChild(caret);
+      await sleep(55+Math.random()*70); if(!alive())return;
+    }
+    el.textContent=txt; el.classList.remove('active');
+    await sleep(350); if(!alive())return;
+  }
+  await sleep(700); if(!alive())return;
+  const ok=sdOv.querySelector('.sd-ok'); ok.classList.add('press');
+  await sleep(220); if(!alive())return;
+  ok.classList.remove('press');
+  sdOv.classList.remove('on'); dlgRun++; dlgOpen=false;
+  sdToast.textContent='✓ '+d.toast; sdToast.classList.add('on');
+  setTimeout(()=>sdToast.classList.remove('on'),2600);
+}
+
+// start on your original order page (#5837), then keep cycling
+show(2);
+requestAnimationFrame(t=>{lastT=t;frame(t);});
+
+/* =====================================================
+   2) RESIZABLE CHAT / CONTACTS PANELS (drag top, left or top-left corner)
+   ===================================================== */
+const panels=[$('chatPanel'),$('contactsPanel')];
+const KEY='akchat-panel-size', DEF={w:400,h:640}, MIN={w:300,h:360};
+const isMobile=()=>window.innerWidth<=600;
+let size=DEF;
+try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.w&&s.h) size=s; }catch(e){}
+
+function clampSize(w,h){
+  return {w:Math.max(MIN.w,Math.min(w,window.innerWidth-32)), h:Math.max(MIN.h,Math.min(h,window.innerHeight-8))};
+}
+function applySize(){
+  panels.forEach(p=>{
+    if(isMobile()){p.style.width='';p.style.height='';p.style.maxHeight='';return;}
+    const s=clampSize(size.w,size.h);
+    p.style.width=s.w+'px'; p.style.height=s.h+'px'; p.style.maxHeight='none';
+  });
+}
+function saveSize(){ try{localStorage.setItem(KEY,JSON.stringify(size));}catch(e){} }
+
+function addHandle(panel,cls,dirX,dirY){
+  const h=document.createElement('div'); h.className='rs-h '+cls; panel.appendChild(h);
+  let sx,sy,sw,sh,active=false;
+  h.addEventListener('pointerdown',e=>{
+    if(isMobile())return;
+    active=true; sx=e.clientX; sy=e.clientY;
+    const r=panel.getBoundingClientRect(); sw=r.width; sh=r.height;
+    h.setPointerCapture(e.pointerId);
+    document.body.classList.add('rs-dragging');
+    e.preventDefault();
+  });
+  h.addEventListener('pointermove',e=>{
+    if(!active)return;
+    const w=dirX?sw+(sx-e.clientX):size.w;
+    const hh=dirY?sh+(sy-e.clientY):size.h;
+    size=clampSize(w,hh); applySize();
+  });
+  const end=e=>{
+    if(!active)return; active=false;
+    document.body.classList.remove('rs-dragging');
+    try{h.releasePointerCapture(e.pointerId);}catch(_){}
+    saveSize();
+    const cb=$('chatBody'); if(cb&&$('chatPanel').classList.contains('active')) cb.scrollTop=cb.scrollHeight;
+  };
+  h.addEventListener('pointerup',end);
+  h.addEventListener('pointercancel',end);
+  h.addEventListener('dblclick',()=>{size={...DEF};applySize();saveSize();}); // double-click = reset
+}
+panels.forEach(p=>{ addHandle(p,'rs-t',false,true); addHandle(p,'rs-l',true,false); addHandle(p,'rs-tl',true,true); });
+window.addEventListener('resize',()=>{ size=clampSize(size.w,size.h); applySize(); });
+applySize();
+})();
+</script>
+<!-- ================= END ADD-ON ================= -->
+
 </body>
 </html>
